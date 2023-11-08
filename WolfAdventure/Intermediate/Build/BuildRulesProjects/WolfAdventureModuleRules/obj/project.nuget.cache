@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "t0wB6pSDKUyHgfLt6OhYK9iCTkkv8kIlt4pLlKFMt3smBgUcY4vpuAttbVgkbvG0NQZr0zHzdOuQ94j9sCn/BQ==",
+  "dgSpecHash": "R4uBSgd67bXnhdNW6pGkJAUVCw6x3fqNRp6P6guRVKkBnkKWWew+cvYo0ckD54hr0YRoIl1A4ZAbkkAP0ME43w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\WolfAdventureModuleRules.csproj",
+  "projectFilePath": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventureGame\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\WolfAdventureModuleRules.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Usuario\\.nuget\\packages\\blake3\\0.5.1\\blake3.0.5.1.nupkg.sha512",
     "C:\\Users\\Usuario\\.nuget\\packages\\humanizer.core\\2.2.0\\humanizer.core.2.2.0.nupkg.sha512",

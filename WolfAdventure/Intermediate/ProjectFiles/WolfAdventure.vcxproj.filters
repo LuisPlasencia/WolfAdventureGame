@@ -11,6 +11,7 @@
     <None Include="..\..\Source\WolfAdventureEditor.Target.cs">
       <Filter>Source</Filter>
     </None>
+    <None Include="..\..\.vsconfig" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
     </Filter>
@@ -37,6 +38,30 @@
     </ClCompile>
     <ClInclude Include="..\..\Source\WolfAdventure\WolfAdventure.h">
       <Filter>Source\WolfAdventure</Filter>
+    </ClInclude>
+    <Filter Include="Source\WolfAdventure\Characters">
+      <UniqueIdentifier>{1B16B451-65B4-34D6-99BD-1DA3D2FCB604}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\WolfAdventure\Characters\WolfAnimInstance.cpp">
+      <Filter>Source\WolfAdventure\Characters</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\WolfAdventure\Characters\WolfAnimInstance.h">
+      <Filter>Source\WolfAdventure\Characters</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\WolfAdventure\Characters\WolfCharacter.cpp">
+      <Filter>Source\WolfAdventure\Characters</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\WolfAdventure\Characters\WolfCharacter.h">
+      <Filter>Source\WolfAdventure\Characters</Filter>
+    </ClInclude>
+    <Filter Include="Source\WolfAdventure\GameMode">
+      <UniqueIdentifier>{C5CDE8A4-3FFF-3E4B-876C-9EF099DBBC99}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\WolfAdventure\GameMode\WolfAdventureGameModeBase.cpp">
+      <Filter>Source\WolfAdventure\GameMode</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\WolfAdventure\GameMode\WolfAdventureGameModeBase.h">
+      <Filter>Source\WolfAdventure\GameMode</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

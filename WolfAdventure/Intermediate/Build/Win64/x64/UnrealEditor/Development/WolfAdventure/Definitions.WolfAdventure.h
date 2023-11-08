@@ -1,4 +1,4 @@
-#include "C:/Users/Usuario/Documents/Unreal Projects/WolfAdventure/Intermediate/Build/Win64/x64/WolfAdventureEditor/Development/Engine/SharedDefinitions.Engine.Cpp20.h"
+#include "C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Intermediate/Build/Win64/x64/WolfAdventureEditor/Development/Engine/SharedDefinitions.Engine.Cpp20.h"
 #undef UE_IS_ENGINE_MODULE
 #undef DEPRECATED_FORGAME
 #define DEPRECATED_FORGAME DEPRECATED
@@ -22,3 +22,4 @@
 #define DEPRECATED_FORGAME DEPRECATED
 #define UE_DEPRECATED_FORGAME UE_DEPRECATED
 #define WOLFADVENTURE_API DLLEXPORT
+#define ENHANCEDINPUT_API DLLIMPORT

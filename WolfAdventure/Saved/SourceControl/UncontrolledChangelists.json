@@ -1,0 +1,16 @@
+{
+	"version": 1,
+	"changelists": [
+		{
+			"guid": "00000000000000000000000000000000",
+			"description": "Default Uncontrolled Changelist",
+			"files": [
+				"C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Content/BP_LionAdventureGameModeBase.uasset",
+				"C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Content/Animations/ABP_WolfCharacter.uasset",
+				"C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Content/BP_WolfAdventureGameModeBase.uasset",
+				"C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Content/Animations/AO_WolfAttack.uasset",
+				"C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Content/BP_WolfCharacter.uasset"
+			]
+		}
+	]
+}

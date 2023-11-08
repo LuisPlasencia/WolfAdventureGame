@@ -8047,11 +8047,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\WolfAdventureModuleRules.csproj",
+      "projectUniqueName": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventureGame\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\WolfAdventureModuleRules.csproj",
       "projectName": "WolfAdventureModuleRules",
-      "projectPath": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\WolfAdventureModuleRules.csproj",
+      "projectPath": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventureGame\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\WolfAdventureModuleRules.csproj",
       "packagesPath": "C:\\Users\\Usuario\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\obj\\",
+      "outputPath": "C:\\Users\\Usuario\\Documents\\Unreal Projects\\WolfGit\\WolfAdventureGame\\WolfAdventure\\Intermediate\\Build\\BuildRulesProjects\\WolfAdventureModuleRules\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Usuario\\AppData\\Roaming\\NuGet\\NuGet.Config",

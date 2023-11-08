@@ -1,12 +1,12 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "c:\\users\\usuario\\documents\\unreal projects\\wolfadventure\\source\\wolfadventure\\wolfadventure.cpp",
+        "Source": "c:\\users\\usuario\\documents\\unreal projects\\wolfgit\\wolfadventuregame\\wolfadventure\\source\\wolfadventure\\wolfadventure.cpp",
         "ProvidedModule": "",
-        "PCH": "c:\\users\\usuario\\documents\\unreal projects\\wolfadventure\\intermediate\\build\\win64\\x64\\wolfadventureeditor\\development\\engine\\sharedpch.engine.cpp20.h.pch",
+        "PCH": "c:\\users\\usuario\\documents\\unreal projects\\wolfgit\\wolfadventuregame\\wolfadventure\\intermediate\\build\\win64\\x64\\wolfadventureeditor\\development\\engine\\sharedpch.engine.cpp20.h.pch",
         "Includes": [
-            "c:\\users\\usuario\\documents\\unreal projects\\wolfadventure\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\wolfadventure\\definitions.wolfadventure.h",
-            "c:\\users\\usuario\\documents\\unreal projects\\wolfadventure\\source\\wolfadventure\\wolfadventure.h"
+            "c:\\users\\usuario\\documents\\unreal projects\\wolfgit\\wolfadventuregame\\wolfadventure\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\wolfadventure\\definitions.wolfadventure.h",
+            "c:\\users\\usuario\\documents\\unreal projects\\wolfgit\\wolfadventuregame\\wolfadventure\\source\\wolfadventure\\wolfadventure.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []
