@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-WolfAdventure.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\Usuario\Documents\Unreal Projects\WolfAdventure\Intermediate\Build\Win64\x64\WolfAdventureEditor\Development\Engine\SharedPCH.Engine.Cpp20.h.obj"
+"C:\Users\Usuario\Documents\Unreal Projects\WolfAdventure\Intermediate\Build\Win64\x64\UnrealEditor\Development\WolfAdventure\WolfAdventure.cpp.obj"
+"C:\Users\Usuario\Documents\Unreal Projects\WolfAdventure\Intermediate\Build\Win64\x64\UnrealEditor\Development\WolfAdventure\Default.rc2.res"
+/OUT:"C:\Users\Usuario\Documents\Unreal Projects\WolfAdventure\Intermediate\Build\Win64\x64\UnrealEditor\Development\WolfAdventure\UnrealEditor-WolfAdventure.lib"

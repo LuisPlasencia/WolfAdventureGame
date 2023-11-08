@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\WolfAdventure.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{F31BBDD1-B3E8-3BCC-9652-680E16935819}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\WolfAdventure.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\WolfAdventureEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\WolfAdventure">
+      <UniqueIdentifier>{B86EEDD9-DD2A-3F3F-84A3-2FC3FBDF8C85}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\WolfAdventure\WolfAdventure.Build.cs">
+      <Filter>Source\WolfAdventure</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\WolfAdventure\WolfAdventure.cpp">
+      <Filter>Source\WolfAdventure</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\WolfAdventure\WolfAdventure.h">
+      <Filter>Source\WolfAdventure</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
