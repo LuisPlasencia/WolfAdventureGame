@@ -72,7 +72,7 @@
 /DBUILT_FROM_CHANGELIST=29314046
 /DBUILD_VERSION=++UE5+Release-5.3-CL-29314046
 /DBUILD_ICON_FILE_NAME="\"..\\Build\\Windows\\Resources\\Default.ico\""
-/DPROJECT_COPYRIGHT_STRING="Fill out your copyright notice in the Description page of Project Settings."
+/DPROJECT_COPYRIGHT_STRING="Made by Luis Plasencia Pulido"
 /DPROJECT_PRODUCT_IDENTIFIER=WolfAdventure
 /fo "C:\Users\Usuario\Documents\Unreal Projects\WolfGit\WolfAdventureGame\WolfAdventure\Intermediate\Build\Win64\x64\UnrealEditor\Development\WolfAdventure\Default.rc2.res"
 "..\Build\Windows\Resources\Default.rc2"

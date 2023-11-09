@@ -64,4 +64,9 @@
       <Filter>Source\WolfAdventure\GameMode</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\WolfAdventure\DebugMacros.h">
+      <Filter>Source\WolfAdventure</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

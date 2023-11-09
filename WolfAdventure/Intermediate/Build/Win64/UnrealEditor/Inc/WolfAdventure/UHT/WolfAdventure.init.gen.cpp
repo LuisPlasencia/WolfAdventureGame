@@ -17,7 +17,7 @@ void EmptyLinkFunctionForGeneratedCodeWolfAdventure_init() {}
 				nullptr,
 				0,
 				PKG_CompiledIn | 0x00000000,
-				0x356036F0,
+				0x751C1B2C,
 				0xA6CEC36B,
 				METADATA_PARAMS(0, nullptr)
 			};
@@ -25,5 +25,5 @@ void EmptyLinkFunctionForGeneratedCodeWolfAdventure_init() {}
 		}
 		return Z_Registration_Info_UPackage__Script_WolfAdventure.OuterSingleton;
 	}
-	static FRegisterCompiledInInfo Z_CompiledInDeferPackage_UPackage__Script_WolfAdventure(Z_Construct_UPackage__Script_WolfAdventure, TEXT("/Script/WolfAdventure"), Z_Registration_Info_UPackage__Script_WolfAdventure, CONSTRUCT_RELOAD_VERSION_INFO(FPackageReloadVersionInfo, 0x356036F0, 0xA6CEC36B));
+	static FRegisterCompiledInInfo Z_CompiledInDeferPackage_UPackage__Script_WolfAdventure(Z_Construct_UPackage__Script_WolfAdventure, TEXT("/Script/WolfAdventure"), Z_Registration_Info_UPackage__Script_WolfAdventure, CONSTRUCT_RELOAD_VERSION_INFO(FPackageReloadVersionInfo, 0x751C1B2C, 0xA6CEC36B));
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

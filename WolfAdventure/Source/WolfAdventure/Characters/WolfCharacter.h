@@ -8,6 +8,8 @@
 
 class UInputMappingContext;
 class UInputAction;
+class USpringArmComponent;
+class UCameraComponent;
 
 UCLASS()
 class WOLFADVENTURE_API AWolfCharacter : public ACharacter
@@ -17,6 +19,12 @@ class WOLFADVENTURE_API AWolfCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AWolfCharacter();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -66,11 +74,11 @@ protected:
 	void FinishJumping();
 	void FinishAttacking();
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* CameraBoom;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* ViewCamera;
 
 };

@@ -10,6 +10,8 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 void EmptyLinkFunctionForGeneratedCodeWolfCharacter() {}
 // Cross Module References
 	ENGINE_API UClass* Z_Construct_UClass_ACharacter();
+	ENGINE_API UClass* Z_Construct_UClass_UCameraComponent_NoRegister();
+	ENGINE_API UClass* Z_Construct_UClass_USpringArmComponent_NoRegister();
 	ENHANCEDINPUT_API UClass* Z_Construct_UClass_UInputAction_NoRegister();
 	ENHANCEDINPUT_API UClass* Z_Construct_UClass_UInputMappingContext_NoRegister();
 	UPackage* Z_Construct_UPackage__Script_WolfAdventure();
@@ -71,6 +73,14 @@ void EmptyLinkFunctionForGeneratedCodeWolfCharacter() {}
 #endif
 		static void NewProp_isAttacking_SetBit(void* Obj);
 		static const UECodeGen_Private::FBoolPropertyParams NewProp_isAttacking;
+#if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam NewProp_CameraBoom_MetaData[];
+#endif
+		static const UECodeGen_Private::FObjectPropertyParams NewProp_CameraBoom;
+#if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam NewProp_ViewCamera_MetaData[];
+#endif
+		static const UECodeGen_Private::FObjectPropertyParams NewProp_ViewCamera;
 		static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 		static const FCppClassTypeInfoStatic StaticCppClassTypeInfo;
 		static const UECodeGen_Private::FClassParams ClassParams;
@@ -161,6 +171,22 @@ void EmptyLinkFunctionForGeneratedCodeWolfCharacter() {}
 		((AWolfCharacter*)Obj)->isAttacking = 1;
 	}
 	const UECodeGen_Private::FBoolPropertyParams Z_Construct_UClass_AWolfCharacter_Statics::NewProp_isAttacking = { "isAttacking", nullptr, (EPropertyFlags)0x0020080000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, sizeof(bool), sizeof(AWolfCharacter), &Z_Construct_UClass_AWolfCharacter_Statics::NewProp_isAttacking_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UClass_AWolfCharacter_Statics::NewProp_isAttacking_MetaData), Z_Construct_UClass_AWolfCharacter_Statics::NewProp_isAttacking_MetaData) };
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AWolfCharacter_Statics::NewProp_CameraBoom_MetaData[] = {
+		{ "Category", "WolfCharacter" },
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Characters/WolfCharacter.h" },
+	};
+#endif
+	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_AWolfCharacter_Statics::NewProp_CameraBoom = { "CameraBoom", nullptr, (EPropertyFlags)0x00400000000a0009, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(AWolfCharacter, CameraBoom), Z_Construct_UClass_USpringArmComponent_NoRegister, METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UClass_AWolfCharacter_Statics::NewProp_CameraBoom_MetaData), Z_Construct_UClass_AWolfCharacter_Statics::NewProp_CameraBoom_MetaData) };
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AWolfCharacter_Statics::NewProp_ViewCamera_MetaData[] = {
+		{ "Category", "WolfCharacter" },
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Characters/WolfCharacter.h" },
+	};
+#endif
+	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_AWolfCharacter_Statics::NewProp_ViewCamera = { "ViewCamera", nullptr, (EPropertyFlags)0x00400000000a0009, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(AWolfCharacter, ViewCamera), Z_Construct_UClass_UCameraComponent_NoRegister, METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UClass_AWolfCharacter_Statics::NewProp_ViewCamera_MetaData), Z_Construct_UClass_AWolfCharacter_Statics::NewProp_ViewCamera_MetaData) };
 	const UECodeGen_Private::FPropertyParamsBase* const Z_Construct_UClass_AWolfCharacter_Statics::PropPointers[] = {
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_WolfMappingContext,
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_MoveAction,
@@ -172,6 +198,8 @@ void EmptyLinkFunctionForGeneratedCodeWolfCharacter() {}
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_timeBetweenJumps,
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_timeBetweenAttacks,
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_isAttacking,
+		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_CameraBoom,
+		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_AWolfCharacter_Statics::NewProp_ViewCamera,
 	};
 	const FCppClassTypeInfoStatic Z_Construct_UClass_AWolfCharacter_Statics::StaticCppClassTypeInfo = {
 		TCppClassTypeTraits<AWolfCharacter>::IsAbstract,
@@ -211,9 +239,9 @@ void EmptyLinkFunctionForGeneratedCodeWolfCharacter() {}
 		static const FClassRegisterCompiledInInfo ClassInfo[];
 	};
 	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_WolfAdventure_Source_WolfAdventure_Characters_WolfCharacter_h_Statics::ClassInfo[] = {
-		{ Z_Construct_UClass_AWolfCharacter, AWolfCharacter::StaticClass, TEXT("AWolfCharacter"), &Z_Registration_Info_UClass_AWolfCharacter, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(AWolfCharacter), 2116786367U) },
+		{ Z_Construct_UClass_AWolfCharacter, AWolfCharacter::StaticClass, TEXT("AWolfCharacter"), &Z_Registration_Info_UClass_AWolfCharacter, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(AWolfCharacter), 3496961900U) },
 	};
-	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_WolfAdventure_Source_WolfAdventure_Characters_WolfCharacter_h_4064291616(TEXT("/Script/WolfAdventure"),
+	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_WolfAdventure_Source_WolfAdventure_Characters_WolfCharacter_h_2230640601(TEXT("/Script/WolfAdventure"),
 		Z_CompiledInDeferFile_FID_WolfAdventure_Source_WolfAdventure_Characters_WolfCharacter_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_WolfAdventure_Source_WolfAdventure_Characters_WolfCharacter_h_Statics::ClassInfo),
 		nullptr, 0,
 		nullptr, 0);
