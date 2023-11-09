@@ -2266,3 +2266,29 @@ LogConfig: CVar [[con.DebugLateDefault:1]] deferred - dummy variable created
 [2023.11.09-06.21.59:743][664]AssetCheck: New page: Asset Save: CR_WolfLeg
 [2023.11.09-06.21.59:743][664]LogContentValidation: Display: Validating /Script/ControlRigDeveloper.ControlRigBlueprint /Game/Animations/Rigs/CR_WolfLeg.CR_WolfLeg
 [2023.11.09-06.22.04:255][  2]LogUObjectHash: Compacting FUObjectHashTables data took   1.44ms
+[2023.11.09-06.34.33:569][401]LogDerivedDataCache: C:/Users/Usuario/AppData/Local/UnrealEngine/Common/DerivedDataCache: Maintenance finished in +00:00:33.391 and deleted 0 files with total size 0 MiB and 0 empty folders. Scanned 17335 files in 19323 folders with total size 1999 MiB.
+[2023.11.09-06.48.24:857][894]LogAudioMixer: Warning: AudioMixerPlatformInterface Timeout [ 5 Seconds] waiting for h/w. InstanceID=1
+[2023.11.09-06.48.24:875][894]LogAudioMixer: Display: FMixerNullCallback: Simulating a h/w device callback at [21ms], ThreadID=49060
+[2023.11.09-06.48.25:210][895]LogAudioMixer: Display: Successful Swap new Device is (NumChannels=2, SampleRate=48000, DeviceID={0.0.0.00000000}.{923ede42-20ff-499b-827c-86f40d54ad4f}, Name=Altavoces (High Definition Audio Device)), Reason=AudioMixerPlatformInterface. Timeout waiting for h/w., InstanceID=1, DurationMS=24.54
+[2023.11.09-06.48.25:210][895]LogAudioMixer: Display: Output buffers initialized: Frames=1024, Channels=2, Samples=2048, InstanceID=1
+[2023.11.09-06.48.25:211][895]LogAudioMixer: Display: Starting AudioMixerPlatformInterface::RunInternal(), InstanceID=1
+[2023.11.09-06.48.32:619][905]LogAudioMixer: Warning: AudioMixerPlatformInterface Timeout [ 5 Seconds] waiting for h/w. InstanceID=1
+[2023.11.09-14.58.22:726][905]LogAudioMixer: Display: FMixerNullCallback: Simulating a h/w device callback at [21ms], ThreadID=49060
+[2023.11.09-14.58.22:737][906]LogAutomationController: Ignoring very large delta of 29394.75 seconds in calls to FAutomationControllerManager::Tick() and not penalizing unresponsive tests
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: request failed, libcurl error: 6 (Couldn't resolve host name)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: libcurl info message cache 0 (Too old connection (29412 seconds idle), disconnect it)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: libcurl info message cache 1 (Connection 3 seems to be dead)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: libcurl info message cache 2 (Closing connection)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: libcurl info message cache 3 (TLSv1.2 (OUT), TLS alert, close notify (256):)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: libcurl info message cache 4 (Could not resolve host: datarouter.ol.epicgames.com)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: 000009DE6793AF00: libcurl info message cache 5 (Closing connection)
+[2023.11.09-14.58.22:737][906]LogHttp: Warning: Retry exhausted on https://datarouter.ol.epicgames.com/datarouter/api/v1/public/data?SessionID=%7B5B97E882-4232-5CBE-8937-2D9EBD36709B%7D&AppID=UEEditor.Rocket.Release&AppVersion=5.3.2-29314046%2B%2B%2BUE5%2BRelease-5.3&UserID=11bdac9e49f94e662c2819a6a07eb224%7C126322bc189a4eb0b5e741d6e14a5b0a%7C7701ac0a-6136-4cf5-9c24-1d35f8a9f292&AppEnvironment=datacollector-binary&UploadType=eteventstream
+[2023.11.09-14.58.27:726][908]LogAudioMixer: Warning: AudioMixerPlatformInterface Timeout [ 5 Seconds] waiting for h/w. InstanceID=1
+[2023.11.09-14.58.29:907][908]LogAudioMixer: Display: Successful Swap new Device is (NumChannels=2, SampleRate=48000, DeviceID={0.0.0.00000000}.{923ede42-20ff-499b-827c-86f40d54ad4f}, Name=Altavoces (High Definition Audio Device)), Reason=AudioMixerPlatformInterface. Timeout waiting for h/w., InstanceID=1, DurationMS=3257.98
+[2023.11.09-14.58.29:907][908]LogAudioMixer: Display: Output buffers initialized: Frames=1024, Channels=2, Samples=2048, InstanceID=1
+[2023.11.09-14.58.29:918][908]LogAudioMixer: Display: Starting AudioMixerPlatformInterface::RunInternal(), InstanceID=1
+[2023.11.09-14.58.29:933][908]LogAutomationController: Ignoring very large delta of 6.04 seconds in calls to FAutomationControllerManager::Tick() and not penalizing unresponsive tests
+[2023.11.09-14.58.30:216][909]LogAudioMixer: Display: FMixerNullCallback: Simulating a h/w device callback at [21ms], ThreadID=49060
+[2023.11.09-14.58.30:553][910]LogAudioMixer: Display: Successful Swap new Device is (NumChannels=2, SampleRate=48000, DeviceID={0.0.0.00000000}.{923ede42-20ff-499b-827c-86f40d54ad4f}, Name=Altavoces (High Definition Audio Device)), Reason=AudioMixerPlatformInterface. Timeout waiting for h/w., InstanceID=1, DurationMS=62.39
+[2023.11.09-14.58.30:554][910]LogAudioMixer: Display: Output buffers initialized: Frames=1024, Channels=2, Samples=2048, InstanceID=1
+[2023.11.09-14.58.30:561][910]LogAudioMixer: Display: Starting AudioMixerPlatformInterface::RunInternal(), InstanceID=1
