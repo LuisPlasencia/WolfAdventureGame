@@ -1,3 +1,0 @@
-// PCH for Runtime/CoreUObject/Public/CoreUObjectSharedPCH.h
-#include "C:/Users/Usuario/Documents/Unreal Projects/WolfGit/WolfAdventureGame/WolfAdventure/Intermediate/Build/Win64/x64/WolfAdventureEditor/Development/CoreUObject/SharedDefinitions.CoreUObject.Cpp20.h"
-#include "Runtime/CoreUObject/Public/CoreUObjectSharedPCH.h"
