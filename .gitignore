@@ -72,11 +72,3 @@
 
 # Cache files for the editor to use
 **/DerivedDataCache/*
-
-WolfAdventure/Saved/Logs/WolfAdventure.log
-WolfAdventure/Intermediate/Build/Win64/x64/WolfAdventureEditor/Development/Makefile.bin
-WolfAdventure/Intermediate/Build/Win64/x64/WolfAdventureEditor/Development/DependencyCache.bin
-WolfAdventure/Intermediate/Build/Win64/x64/UnrealEditor/Development/WolfAdventure/UnrealEditor-WolfAdventure.lib.rsp.old
-WolfAdventure/Intermediate/Build/Win64/x64/UnrealEditor/Development/WolfAdventure/UnrealEditor-WolfAdventure.lib.rsp
-WolfAdventure/Intermediate/Build/Win64/x64/UnrealEditor/Development/WolfAdventure/UnrealEditor-WolfAdventure.dll.rsp.old
-WolfAdventure/Intermediate/Build/Win64/x64/UnrealEditor/Development/WolfAdventure/UnrealEditor-WolfAdventure.dll.rsp
