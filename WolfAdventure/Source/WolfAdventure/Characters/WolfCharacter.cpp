@@ -21,7 +21,8 @@ AWolfCharacter::AWolfCharacter()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 300.f;
+	CameraBoom->TargetArmLength = 600.f;
+	CameraBoom->bUsePawnControlRotation = true;
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
@@ -104,7 +105,6 @@ void AWolfCharacter::Attack()
 {
 	if (!isAttacking)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HOLA"));
 		isAttacking = true;
 		FTimerHandle AttackTimer;
 		GetWorldTimerManager().SetTimer(AttackTimer, this, &AWolfCharacter::FinishAttacking, timeBetweenAttacks, false);
