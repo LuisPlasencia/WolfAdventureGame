@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "CharacterType.h"
 #include "WolfCharacter.generated.h"
 
 
@@ -10,6 +11,7 @@ class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+class UAnimMontage;
 
 UCLASS()
 class WOLFADVENTURE_API AWolfCharacter : public ACharacter
@@ -62,8 +64,14 @@ protected:
 
 	bool isJumping = false;
 
+	void FinishJumping();
+	void FinishAttacking();
+
 
 	// We cant forward declase FInputActionValue since it is not a pointer, but a Fstruct 
+	/**
+	* Callbacks for input
+	*/
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
@@ -71,8 +79,14 @@ protected:
 	void Attack();
 	void Equip();
 
-	void FinishJumping();
-	void FinishAttacking();
+
+	/**
+	* Play montage functions
+	*/
+	void PlayAttackMontage();
+
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -81,4 +95,13 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* ViewCamera;
 
+	/** 
+	* Animation montages
+	*/
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 };
