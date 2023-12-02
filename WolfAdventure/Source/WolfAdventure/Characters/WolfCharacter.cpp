@@ -99,7 +99,9 @@ void AWolfCharacter::Jump(const FInputActionValue& Value)
 
 void AWolfCharacter::Dodge()
 {
-
+	if (ActionState != EActionState::EAS_Unoccupied) return;
+	PlayDodgeMontage();
+	ActionState = EActionState::EAS_Dodge;
 }
 
 void AWolfCharacter::Attack()
@@ -151,7 +153,22 @@ void AWolfCharacter::PlayAttackMontage()
 	}
 }
 
+void AWolfCharacter::PlayDodgeMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && DodgeMontage)
+	{
+		AnimInstance->Montage_Play(DodgeMontage);
+	}
+}
+
 void AWolfCharacter::AttackEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AWolfCharacter::DodgeEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
 }

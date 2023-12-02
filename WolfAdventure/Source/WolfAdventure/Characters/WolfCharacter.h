@@ -85,8 +85,13 @@ protected:
 	*/
 	void PlayAttackMontage();
 
+	void PlayDodgeMontage();
+
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void DodgeEnd();
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -101,6 +106,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* DodgeMontage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	EActionState ActionState = EActionState::EAS_Unoccupied;
