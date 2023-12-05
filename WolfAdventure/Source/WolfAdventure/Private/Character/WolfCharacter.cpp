@@ -1,4 +1,4 @@
-#include "WolfCharacter.h"
+#include "Character/WolfCharacter.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
