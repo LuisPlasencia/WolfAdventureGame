@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
+#include <Interaction/EnemyInterface.h>
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -27,6 +29,15 @@ AWolfCharacter::AWolfCharacter()
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
+
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteBox"));
+	BoxComponent->AddRelativeRotation(FRotator(44,50,2));
+	BoxComponent->AddRelativeLocation(FVector(92,5,20));
+	BoxComponent->SetBoxExtent(FVector(32,32,32));
+	BoxComponent->SetGenerateOverlapEvents(true);
+	BoxComponent->SetCollisionProfileName("OverlapAllDynamics");
+
+	BoxComponent->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +53,8 @@ void AWolfCharacter::BeginPlay()
 			Subsystem->AddMappingContext(WolfMappingContext, 0);
 		}
 	}
-
+	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AWolfCharacter::OnBeginOverlap);
+	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &AWolfCharacter::OnEndOverlap);
 }
 
 // Called every frame
@@ -171,6 +183,25 @@ void AWolfCharacter::AttackEnd()
 void AWolfCharacter::DodgeEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AWolfCharacter::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (Cast<IEnemyInterface>(OtherActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BeginOverlapPig"));
+	}
+
+
+}
+
+void AWolfCharacter::OnEndOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+
+	if (Cast<IEnemyInterface>(OtherActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
+	}
 }
 
 void AWolfCharacter::FinishJumping()
