@@ -187,8 +187,13 @@ void AWolfCharacter::DodgeEnd()
 
 void AWolfCharacter::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (Cast<IEnemyInterface>(OtherActor))
+	if (IEnemyInterface* ThisActor = Cast<IEnemyInterface>(OtherActor))
 	{
+		if (ThisActor != nullptr)
+		{
+			ThisActor->HighLightActor();
+
+		}
 		UE_LOG(LogTemp, Warning, TEXT("BeginOverlapPig"));
 	}
 
@@ -198,8 +203,12 @@ void AWolfCharacter::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherA
 void AWolfCharacter::OnEndOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
-	if (Cast<IEnemyInterface>(OtherActor))
+	if (IEnemyInterface* ThisActor = Cast<IEnemyInterface>(OtherActor))
 	{
+		if (OtherActor != nullptr)
+		{
+			ThisActor->UnHighlightActor();
+		}
 		UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
 	}
 }

@@ -18,4 +18,6 @@ class WOLFADVENTURE_API AEnemyCharacter : public ACharacterBase, public IEnemyIn
 public:
 	virtual void HighLightActor() override;
 	virtual void UnHighlightActor() override;
+
+
 };
