@@ -8,6 +8,8 @@
 #include "Animation/AnimMontage.h"
 #include "Components/BoxComponent.h"
 #include <Interaction/EnemyInterface.h>
+#include <Player/WolfPlayerState.h>
+#include "AbilitySystemComponent.h"
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -38,6 +40,33 @@ AWolfCharacter::AWolfCharacter()
 	BoxComponent->SetCollisionProfileName("OverlapAllDynamics");
 
 	BoxComponent->SetupAttachment(GetRootComponent());
+}
+
+void AWolfCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// Init ability actor info for the server
+	InitAbilityActorInfo();
+
+	
+}
+
+void AWolfCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// Init ability actor info for the client
+	InitAbilityActorInfo();
+}
+
+void AWolfCharacter::InitAbilityActorInfo()
+{
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState); //assert
+	WolfPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(WolfPlayerState, this);
+	AbilitySystemComponent = WolfPlayerState->GetAbilitySystemComponent();
+	AttributeSet = WolfPlayerState->GetAttributeSet();
 }
 
 // Called when the game starts or when spawned
@@ -212,6 +241,7 @@ void AWolfCharacter::OnEndOverlap(UPrimitiveComponent* HitComp, AActor* OtherAct
 		UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
 	}
 }
+
 
 void AWolfCharacter::FinishJumping()
 {

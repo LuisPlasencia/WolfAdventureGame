@@ -24,6 +24,10 @@ public:
 	// Sets default values for this character's properties
 	AWolfCharacter();
 
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -124,4 +128,6 @@ private:
 
 	UFUNCTION()
 		void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void InitAbilityActorInfo();
 };

@@ -16,8 +16,15 @@ class WOLFADVENTURE_API AEnemyCharacter : public ACharacterBase, public IEnemyIn
 	GENERATED_BODY()
 	
 public:
+	AEnemyCharacter();
+
+
+	/** Enemy Interface */
 	virtual void HighLightActor() override;
 	virtual void UnHighlightActor() override;
+	/** end Enemy Interface */
 
+protected:
+	virtual void BeginPlay() override;
 
 };
