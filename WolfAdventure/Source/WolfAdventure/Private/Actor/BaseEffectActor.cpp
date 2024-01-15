@@ -29,8 +29,9 @@ void ABaseEffectActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	{
 		const UBaseAttributeSet* BaseAttributeSet = Cast<UBaseAttributeSet>(ASCInterface->GetAbilitySystemComponent()->GetAttributeSet(UBaseAttributeSet::StaticClass()));
 		
-		UBaseAttributeSet* MutableAuraAttributeSet = const_cast<UBaseAttributeSet*>(BaseAttributeSet);
+		UBaseAttributeSet* MutableAuraAttributeSet = const_cast<UBaseAttributeSet*>(BaseAttributeSet);  // bypassess the const (bad practice but good for testing)
 		MutableAuraAttributeSet->SetHealth(BaseAttributeSet->GetHealth() + 25.f);
+		MutableAuraAttributeSet->SetMana(BaseAttributeSet->GetMana() - 25.f);
 		Destroy();
 	}
 }

@@ -10,6 +10,8 @@
 #include <Interaction/EnemyInterface.h>
 #include <Player/WolfPlayerState.h>
 #include "AbilitySystemComponent.h"
+#include <Player/WolfPlayerController.h>
+#include <UI/HUD/BaseHUD.h>
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -48,8 +50,6 @@ void AWolfCharacter::PossessedBy(AController* NewController)
 
 	// Init ability actor info for the server
 	InitAbilityActorInfo();
-
-	
 }
 
 void AWolfCharacter::OnRep_PlayerState()
@@ -63,10 +63,20 @@ void AWolfCharacter::OnRep_PlayerState()
 void AWolfCharacter::InitAbilityActorInfo()
 {
 	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
-	check(WolfPlayerState); //assert
+	check(WolfPlayerState); //assert (crash when null)
 	WolfPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(WolfPlayerState, this);
 	AbilitySystemComponent = WolfPlayerState->GetAbilitySystemComponent();
 	AttributeSet = WolfPlayerState->GetAttributeSet();
+
+
+	// on the client side, we only have the playercontroller for our character, not the other player's so we need to nullcheck this (server has all the player controllers but not the client)
+	if (AWolfPlayerController* WolfPlayerController = Cast<AWolfPlayerController>(GetController()))
+	{
+		if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(WolfPlayerController->GetHUD()))   // hud only valid for the locally controlled player
+		{
+			BaseHUD->InitOverlay(WolfPlayerController, WolfPlayerState, AbilitySystemComponent, AttributeSet);
+		}
+	}
 }
 
 // Called when the game starts or when spawned
