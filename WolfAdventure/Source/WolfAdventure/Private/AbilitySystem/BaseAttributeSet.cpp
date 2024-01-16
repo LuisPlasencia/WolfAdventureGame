@@ -8,7 +8,7 @@ UBaseAttributeSet::UBaseAttributeSet()
 {
 	InitHealth(50.f);
 	InitMaxHealth(100.f);
-	InitMana(50.f);
+	InitMana(10.f);
 	InitMaxMana(50.f);
 }
 
@@ -24,6 +24,7 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 }
 
 void UBaseAttributeSet::OnRep_Health(const FGameplayAttributeData OldHealth) const
+
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, Health, OldHealth);   // inform ability system of the change (MACRO)
 }
