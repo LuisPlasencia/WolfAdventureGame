@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include <AbilitySystem/BaseAttributeSet.h>
+#include <AbilitySystem/BaseAbilitySystemComponent.h>
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -31,6 +32,26 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		BaseAttributeSet->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
+
+
+	// Binding a lambda (anonymous function) saves us the trouble of declaring callback member functions for all the delegates that we want to bind to (+simplicity)
+	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
+		[this](const FGameplayTagContainer& AssetTags)
+		{
+			for (const FGameplayTag& Tag : AssetTags)  // a reference so we dont copy the tag (+efficiency)
+			{
+				const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
+
+				// in order to call a member function in a lambda we need to capture it since a lambda (anonymous function) doesnt know about the class it is in but does know a function like GEngine since it is global to the project
+				// by capturing "this" we are capturing the entire object that we are in (the entire class)
+				FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+
+				// we want to send the row to the widget (broadcast it up to the widget)
+				// we want a delegate that can send through an FUIWidgetRow
+			}
+		}
+	);
 }
 
 void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const

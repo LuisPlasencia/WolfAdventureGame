@@ -129,5 +129,5 @@ private:
 	UFUNCTION()
 		void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	void InitAbilityActorInfo();
+	virtual void InitAbilityActorInfo() override;
 };

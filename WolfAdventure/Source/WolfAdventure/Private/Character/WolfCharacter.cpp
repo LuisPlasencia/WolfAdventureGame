@@ -12,6 +12,7 @@
 #include "AbilitySystemComponent.h"
 #include <Player/WolfPlayerController.h>
 #include <UI/HUD/BaseHUD.h>
+#include <AbilitySystem/BaseAbilitySystemComponent.h>
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -65,6 +66,7 @@ void AWolfCharacter::InitAbilityActorInfo()
 	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
 	check(WolfPlayerState); //assert (crash when null)
 	WolfPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(WolfPlayerState, this);
+	Cast<UBaseAbilitySystemComponent>(WolfPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 	AbilitySystemComponent = WolfPlayerState->GetAbilitySystemComponent();
 	AttributeSet = WolfPlayerState->GetAttributeSet();
 
