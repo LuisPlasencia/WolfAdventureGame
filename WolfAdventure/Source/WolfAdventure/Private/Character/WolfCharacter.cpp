@@ -79,6 +79,9 @@ void AWolfCharacter::InitAbilityActorInfo()
 			BaseHUD->InitOverlay(WolfPlayerController, WolfPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
+
+	// only needs to be done in the server since the attributes will be replicated to the clients (but can be done in both client and server so the client doesnt have to wait for the server to replicate them back down)
+	InitializePrimaryAttributes();
 }
 
 // Called when the game starts or when spawned
