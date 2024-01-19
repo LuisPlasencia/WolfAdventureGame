@@ -21,17 +21,49 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UBaseAttributeSet* BaseAttributeSet = CastChecked<UBaseAttributeSet>(AttributeSet);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged); // adduobject and not adddynamic because its not a dynamic delegate (we bind the callback function to the delegate)
+	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	//	BaseAttributeSet->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged); // adduobject and not adddynamic because its not a dynamic delegate (we bind the callback function to the delegate)
+	//
+	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	//	BaseAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &UOverlayWidgetController::MaxHealthChanged);
+
+	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	//	BaseAttributeSet->GetManaAttribute()).AddUObject(this, &UOverlayWidgetController::ManaChanged);
+
+	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	//	BaseAttributeSet->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &UOverlayWidgetController::MaxHealthChanged);
+		BaseAttributeSet->GetHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnHealthChanged.Broadcast(Data.NewValue);
+			}
+	);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetManaAttribute()).AddUObject(this, &UOverlayWidgetController::ManaChanged);
+		BaseAttributeSet->GetMaxHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxHealthChanged.Broadcast(Data.NewValue);
+			}
+	);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
+		BaseAttributeSet->GetManaAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnManaChanged.Broadcast(Data.NewValue);
+			}
+	);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		BaseAttributeSet->GetMaxManaAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxManaChanged.Broadcast(Data.NewValue);
+			}
+	);
 
 
 	// Binding a lambda (anonymous function) saves us the trouble of declaring callback member functions for all the delegates that we want to bind to (+simplicity)
@@ -40,36 +72,45 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		{
 			for (const FGameplayTag& Tag : AssetTags)  // a reference so we dont copy the tag (+efficiency)
 			{
-				const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
-				GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
+				// For example, say that Tag = Message.HealthPotion
+				// "Message.HealthPotion".MatchesTag("Message") will return True, "Message".MatchesTag("Message.HealthPotion") will return False
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message")); // returns tags in our config file (project settings)
+				if (Tag.MatchesTag(MessageTag))
+				{
+					//const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
+					//GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
 
-				// in order to call a member function in a lambda we need to capture it since a lambda (anonymous function) doesnt know about the class it is in but does know a function like GEngine since it is global to the project
-				// by capturing "this" we are capturing the entire object that we are in (the entire class)
-				FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+					// in order to call a member function in a lambda we need to capture it since a lambda (anonymous function) doesnt know about the class it is in but does know a function like GEngine since it is global to the project
+					// by capturing "this" we are capturing the entire object that we are in (the entire class)
+					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
 
-				// we want to send the row to the widget (broadcast it up to the widget)
-				// we want a delegate that can send through an FUIWidgetRow
+					// we want to send the row to the widget (broadcast it up to the widget)
+					// we want a delegate that can send through an FUIWidgetRow
+					MessageWidgetRowDelegate.Broadcast(*Row);
+				}
+
+
 			}
 		}
 	);
 }
 
-void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
-{
-	OnManaChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxManaChanged.Broadcast(Data.NewValue);
-}
+//void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
+//{
+//	OnHealthChanged.Broadcast(Data.NewValue);
+//}
+//
+//void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
+//{
+//	OnMaxHealthChanged.Broadcast(Data.NewValue);
+//}
+//
+//void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
+//{
+//	OnManaChanged.Broadcast(Data.NewValue);
+//}
+//
+//void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
+//{
+//	OnMaxManaChanged.Broadcast(Data.NewValue);
+//}

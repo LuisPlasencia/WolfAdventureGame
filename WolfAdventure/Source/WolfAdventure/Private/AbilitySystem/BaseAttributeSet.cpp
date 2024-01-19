@@ -32,6 +32,7 @@ void UBaseAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 
 	if (Attribute == GetHealthAttribute())
 	{
+		// this just changes the value returned from quering the modifier (anything else that queries the modifier again will recalculate whats returned from it for any given effect), so in order to clamp properly we also need to set the value to a clamped value in postattributechange
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
 
@@ -84,7 +85,15 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
-	
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	}
+
+	if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
 
 }
 

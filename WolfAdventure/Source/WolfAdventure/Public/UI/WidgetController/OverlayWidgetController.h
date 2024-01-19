@@ -8,16 +8,6 @@
 #include "OverlayWidgetController.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);  // dynamic multicast delegate that broadcasts a float (delegate type)
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
-
-
-struct FOnAttributeChangeData;
-class UBaseUserWidget;
-
-
 // the data table that we use to store information depending on the gameplay tag will have these rows (we fill it creating a blueprint data table whose rows have this signature)
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
@@ -31,11 +21,21 @@ struct FUIWidgetRow : public FTableRowBase
 	FText Message = FText();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<UBaseUserWidget> MessageWidget;
+	TSubclassOf<class UBaseUserWidget> MessageWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UTexture2D* Image = nullptr;
 };
+
+
+// dynamic delegates can be serialized, theyre the slowest delegates, only use when needed (and we need them here in order to be assignable in blueprint)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);  // dynamic multicast delegate that broadcasts a float (delegate type)
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+
+
+struct FOnAttributeChangeData;
+class UBaseUserWidget;
 
 
 /**
@@ -51,18 +51,19 @@ public:
 	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")  // we can bind to this delegate on blueprint
-	FOnHealthChangedSignature OnHealthChanged;  // member variable (delegate)
+	FOnAttributeChangedSignature OnHealthChanged;  // member variable (delegate)
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnMaxHealthChangedSignature OnMaxHealthChanged;
-
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnManaChangedSignature OnManaChanged;
-
+	FOnAttributeChangedSignature OnMaxHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnMaxManaChangedSignature OnMaxManaChanged;
+	FOnAttributeChangedSignature OnManaChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
+	FOnAttributeChangedSignature OnMaxManaChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
+	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
 
 protected: 
@@ -71,10 +72,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	void HealthChanged(const FOnAttributeChangeData& Data) const; // needs this signature (return + params) in order to be binded as a callback to the delegates in the ASC
-	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
-	void ManaChanged(const FOnAttributeChangeData& Data) const; 
-	void MaxManaChanged(const FOnAttributeChangeData& Data) const;
+	// We do this with lambdas instead of callback functions now since they just do simple stuff
+	//void HealthChanged(const FOnAttributeChangeData& Data) const; // needs this signature (return + params) in order to be binded as a callback to the delegates in the ASC
+	//void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
+	//void ManaChanged(const FOnAttributeChangeData& Data) const; 
+	//void MaxManaChanged(const FOnAttributeChangeData& Data) const;
 
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag); // able to return any type of data table row (T is the Type in the template function)
