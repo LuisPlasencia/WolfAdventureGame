@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
+#include "Interaction/CombatInterface.h"
 #include "CharacterBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -12,7 +13,7 @@ class UAttributeSet;
 class UGameplayEffect;
 
 UCLASS(Abstract)  //prevents the class to be dragged into the level
-class WOLFADVENTURE_API ACharacterBase : public ACharacter, public IAbilitySystemInterface
+class WOLFADVENTURE_API ACharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -41,5 +42,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
 
-	void InitializePrimaryAttributes() const;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
+
+
+	// const because it doesnt change the values of member variables
+	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
+	void InitializeDefaultAttributes() const;
+
 };

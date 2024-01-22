@@ -61,6 +61,13 @@ void AWolfCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+int32 AWolfCharacter::GetPlayerLevel()
+{
+	const AWolfPlayerState * WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->GetPlayerLevel();
+}
+
 void AWolfCharacter::InitAbilityActorInfo()
 {
 	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
@@ -81,7 +88,7 @@ void AWolfCharacter::InitAbilityActorInfo()
 	}
 
 	// only needs to be done in the server since the attributes will be replicated to the clients (but can be done in both client and server so the client doesnt have to wait for the server to replicate them back down)
-	InitializePrimaryAttributes();
+	InitializeDefaultAttributes();
 }
 
 // Called when the game starts or when spawned
@@ -285,4 +292,6 @@ void AWolfCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 
 }
+
+
 

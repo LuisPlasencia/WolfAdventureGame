@@ -9,10 +9,8 @@
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
-	InitHealth(50.f);
-	InitMaxHealth(100.f);
-	InitMana(10.f);
-	InitMaxMana(50.f);
+	//InitHealth(50.f);
+	//InitMana(10.f);
 }
 
 //with this function we register variables for replication (boiler plate steps for GAS (Gameplay Ability System))
