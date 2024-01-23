@@ -2,10 +2,16 @@
 
 
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
+#include "BaseGameplayTags.h"
 
 void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 {
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UBaseAbilitySystemComponent::EffectApplied);  // not add dynamic since it is not a dynamic delegate
+	
+
+
+//	const FBaseGameplayTags GameplayTags = FBaseGameplayTags::Get();
+//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Orange, FString::Printf(TEXT("Tag: %s"), *GameplayTags.Attributes_Secondary_Armor.ToString()));
 }
 
 void UBaseAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
