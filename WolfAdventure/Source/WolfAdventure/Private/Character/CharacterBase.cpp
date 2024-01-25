@@ -4,6 +4,7 @@
 
 #include "Character/CharacterBase.h"
 #include "AbilitySystemComponent.h"
+#include <AbilitySystem/BaseAbilitySystemComponent.h>
 
 ACharacterBase::ACharacterBase()
 {
@@ -46,4 +47,16 @@ void ACharacterBase::InitializeDefaultAttributes() const
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
+}
+
+void ACharacterBase::AddCharacterAbilities()
+{
+	UBaseAbilitySystemComponent* BaseASC = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+
+	// Should only add abilities on the server and be replicated down to clients
+	if (!HasAuthority()) return;
+
+	BaseASC->AddCharacterAbilities(StartupAbilities);
+
+
 }

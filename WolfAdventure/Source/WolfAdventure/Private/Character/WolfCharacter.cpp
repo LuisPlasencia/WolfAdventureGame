@@ -51,6 +51,7 @@ void AWolfCharacter::PossessedBy(AController* NewController)
 
 	// Init ability actor info for the server
 	InitAbilityActorInfo();
+	AddCharacterAbilities();
 }
 
 void AWolfCharacter::OnRep_PlayerState()

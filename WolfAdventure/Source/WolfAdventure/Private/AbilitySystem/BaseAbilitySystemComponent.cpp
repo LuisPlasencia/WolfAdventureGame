@@ -14,6 +14,17 @@ void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 //	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Orange, FString::Printf(TEXT("Tag: %s"), *GameplayTags.Attributes_Secondary_Armor.ToString()));
 }
 
+void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
+{
+	for (TSubclassOf<UGameplayAbility> AbilityClass : StartupAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		// give ability can accept const abilitySpec but giveabilityandactivateonce only accepts non-const
+		// GiveAbility(AbilitySpec);
+		GiveAbilityAndActivateOnce(AbilitySpec);
+	}
+}
+
 void UBaseAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
 //	GEngine->AddOnScreenDebugMessage(1, 8.f, FColor::Blue, FString("Effect Applied!"));

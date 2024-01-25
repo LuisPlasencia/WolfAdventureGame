@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameplayTagContainer.h"
 #include "WolfPlayerController.generated.h"
 
+
 class UInputMappingContext;
+class UBaseInputConfig;
 
 /**
  * 
@@ -19,4 +22,14 @@ class WOLFADVENTURE_API AWolfPlayerController : public APlayerController
 public:
 	AWolfPlayerController();
 
+protected:
+	virtual void SetupInputComponent() override;
+
+private:
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UBaseInputConfig> InputConfig;
 };
