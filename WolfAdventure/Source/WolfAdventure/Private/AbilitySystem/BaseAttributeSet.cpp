@@ -6,9 +6,40 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include <Net/UnrealNetwork.h>
+#include "BaseGameplayTags.h"
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
+	const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
+
+	/* Primary Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Strength, GetStrengthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Intelligence, GetIntelligenceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Resilience, GetResilienceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Vigor, GetVigorAttribute);
+
+	/* Secondary Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_Armor, GetArmorAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ArmorPenetration, GetArmorPenetrationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_BlockChance, GetBlockChanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitChance, GetCriticalHitChanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitResistance, GetCriticalHitResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_HealthRegeneration, GetHealthRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
+
+
+	// FunctionPointer is a variable that can hold a function with that signature  (returns calling FunctionPointer()), saves us the trouble of binding a delegate to the TMap
+	// FunctionPointer = GetIntelligenceAttribute;
+
+	// Worse Way (associate delegates to the TMap instead of the function pointer directly without calling it like above): 
+	//FAttributeSignature StrengthDelegate;
+	//// function bound to the delegate that returns the GameplayAttribute struct (removes necessity for boiler plate in widget controller)
+	//StrengthDelegate.BindStatic(GetStrengthAttribute);
+	//TagsToAttributes.Add(GameplayTags.Attributes_Primary_Strength, StrengthDelegate);
+
 	//InitHealth(50.f);
 	//InitMana(10.f);
 }

@@ -13,6 +13,12 @@
  GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
  GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+
+// (old way)
+// this delegate isnt multicast or dynamic 
+//DECLARE_DELEGATE_RetVal(FGameplayAttribute, FAttributeSignature); // value of the return first
+
+
 USTRUCT()
 struct FEffectProperties
 {
@@ -47,6 +53,14 @@ struct FEffectProperties
 	ACharacter* TargetCharacter = nullptr;
 };
 
+// takes an ugly type and convert it to something more readable (a type def should have the prefix of the thing that it represents (T, F...)
+// typedef is specific to the FGameplayAttribute() signature, but TStaticFuncPtr is generic to any signature
+// typedef TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultDelegateUserPolicy>::FFuncPtr FAttributeFuncPtr;
+
+// templated alias way (true template) (+cleaner and less restrictive than above) (function pointer capable of storing the adress of a function of any function signature we choose) (it doesnt have anything to do with attributes it just takes static functions):
+template<class T>
+using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr;
+
 /**
  * 
  */
@@ -62,6 +76,44 @@ public:
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+
+	// FFuncPtr is a member (type allias akin to typedef) that assembles template inputs into a function pointer with the correct signature
+	// functionType (returns FGameplayAttribute and has 0 input parameters (... = variatic input parameters))
+	// Maps gameplay tags to function pointers with that signature (return FGameplayAttribute and 0 input params)
+	// REAL SIGNATURE = TMap<FGameplayTag, TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultDelegateUserPolicy>::FFuncPtr> TagsToAttributes;
+	// raw c++ sintax for function pointer:
+	// TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttributes;
+	// with typedef alias (cleaner):
+	// TMap<FGameplayTag, FAttributeFuncPtr> TagsToAttributes;
+	// with templated alias (cleanest and most versatile, it can point to anything not just attributes...):
+	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
+
+	/*  example of versatility =
+	* 
+	*  this:
+	*  TStaticFuncPtr<float(int32, float, int32)> RandomFunctionPointer;
+	* 
+	*  is capable of storing this adress 
+	*  static float RandomFunction(int32 I, float F, int32 I2) { return 0.f; }
+	* 
+	*  we store it...
+	*  RandomFunctionPointer = RandomFunction)
+	* 
+	*  and then we call it...  
+	*  float F = RandomFunctinoPointer(0,0.f,0)):
+	* 
+	/* 
+
+
+	// function pointer def:
+	// FunctionPointer is a variable that can hold a function with that signature  (returns calling FunctionPointer()), saves us the trouble of binding a delegate to the TMap
+	// FunctionPointer = GetIntelligenceAttribute;
+	// TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultDelegateUserPolicy>::FFuncPtr FunctionPointer;   	
+
+	// old way:
+	//	TMap<FGameplayTag, FAttributeSignature> TagsToAttributes;
+
 
 	/*
 	*  Primary Attributes
