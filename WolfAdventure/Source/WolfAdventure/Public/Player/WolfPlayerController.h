@@ -10,6 +10,7 @@
 
 class UInputMappingContext;
 class UBaseInputConfig;
+class UBaseAbilitySystemComponent;
 
 /**
  * 
@@ -32,4 +33,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UBaseInputConfig> InputConfig;
+
+	UPROPERTY()
+	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
+
+	UBaseAbilitySystemComponent* GetASC();
 };
