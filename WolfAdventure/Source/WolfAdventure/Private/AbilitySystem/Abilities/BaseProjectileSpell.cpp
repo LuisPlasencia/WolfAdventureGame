@@ -9,8 +9,16 @@ void UBaseProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+
+
+}
+
+void UBaseProjectileSpell::SpawnProjectile()
+{
+
+
 	// we want to spawn the projectile on the server and let it handle its movement. The client will see a replicated version of the projectile
-	const bool bIsServer = HasAuthority(&ActivationInfo);
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if (!bIsServer) return;
 
 
@@ -25,12 +33,11 @@ void UBaseProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 		// we want to make sure that the properties of the actor projectile are set before spawning it (need of gameplay effect, etc), thats why we use spawndeferred
 		ABaseProjectile*
-		Projectile = GetWorld()->SpawnActorDeferred<ABaseProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);  // always spawn regardless of collisions/overrides
+			Projectile = GetWorld()->SpawnActorDeferred<ABaseProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);  // always spawn regardless of collisions/overrides
 
 		// TODO: Give the Projectile a Gameplay Effect Spec for causing Damage
 
 
 		Projectile->FinishSpawning(SpawnTransform);
 	}
-
 }

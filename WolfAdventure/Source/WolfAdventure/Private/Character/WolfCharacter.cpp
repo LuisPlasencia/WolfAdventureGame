@@ -179,8 +179,8 @@ void AWolfCharacter::Attack()
 
 	if (ActionState == EActionState::EAS_Unoccupied)
 	{
-		PlayAttackMontage();
-		ActionState = EActionState::EAS_Attacking;
+	//	PlayAttackMontage();
+	//	ActionState = EActionState::EAS_Attacking;
 	}
 
 }
