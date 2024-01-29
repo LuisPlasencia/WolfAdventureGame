@@ -11,6 +11,7 @@
 class UInputMappingContext;
 class UBaseInputConfig;
 class UBaseAbilitySystemComponent;
+class UInputAction;
 
 /**
  * 
@@ -22,6 +23,7 @@ class WOLFADVENTURE_API AWolfPlayerController : public APlayerController
 
 public:
 	AWolfPlayerController();
+	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -30,6 +32,20 @@ private:
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> ShiftAction;
+
+	void ShiftPressed() { bShiftKeyDown = true; }
+	void ShiftReleased() { bShiftKeyDown = false; };
+	bool bShiftKeyDown = false;
+
+	void CrosshairTrace();
+	TObjectPtr<AActor> LastActor;
+	TObjectPtr<AActor> ThisActor;
+	FHitResult CursorHit;
+	static void HighlightActor(AActor* InActor);
+	static void UnHighlightActor(AActor* InActor);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UBaseInputConfig> InputConfig;

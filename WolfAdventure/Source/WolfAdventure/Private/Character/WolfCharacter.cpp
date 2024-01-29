@@ -246,7 +246,7 @@ void AWolfCharacter::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherA
 			ThisActor->HighLightActor();
 
 		}
-		UE_LOG(LogTemp, Warning, TEXT("BeginOverlapPig"));
+	//	UE_LOG(LogTemp, Warning, TEXT("BeginOverlapPig"));
 	}
 
 
@@ -261,7 +261,7 @@ void AWolfCharacter::OnEndOverlap(UPrimitiveComponent* HitComp, AActor* OtherAct
 		{
 			ThisActor->UnHighlightActor();
 		}
-		UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
+	//	UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
 	}
 }
 

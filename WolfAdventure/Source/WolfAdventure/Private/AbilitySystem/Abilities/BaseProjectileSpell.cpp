@@ -13,7 +13,7 @@ void UBaseProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 }
 
-void UBaseProjectileSpell::SpawnProjectile()
+void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {
 
 
@@ -21,15 +21,18 @@ void UBaseProjectileSpell::SpawnProjectile()
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if (!bIsServer) return;
 
-
 	// we want a socket location from an actor that implements the combat interface, this way we can use this in different actors and not just the wolf (abstractions > specifics)
-	FTransform SpawnTransform;
 	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo());
 	if (CombatInterface)
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		// Rotation.Pitch = 0.f; // ground parallel
+
+		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
-		// TODO: Set the Projectile Rotation
+		SpawnTransform.SetRotation(Rotation.Quaternion());
+
 
 		// we want to make sure that the properties of the actor projectile are set before spawning it (need of gameplay effect, etc), thats why we use spawndeferred
 		ABaseProjectile*
