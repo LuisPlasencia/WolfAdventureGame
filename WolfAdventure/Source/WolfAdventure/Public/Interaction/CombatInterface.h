@@ -25,4 +25,5 @@ class WOLFADVENTURE_API ICombatInterface
 public:
 	// in this case we dont make it pure virtual so the implementation is not compulsary but we can define a default return value in the cpp
 	virtual int32 GetPlayerLevel();
+	virtual FVector GetCombatSocketLocation();
 };

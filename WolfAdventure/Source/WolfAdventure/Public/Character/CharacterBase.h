@@ -32,6 +32,13 @@ protected:
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 
+	// we want this to know where to spawn abilities
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName WeaponTipSocketName;
+
+	virtual FVector GetCombatSocketLocation() override;
+
+
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent>  AbilitySystemComponent;
 
