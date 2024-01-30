@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "Character/CharacterBase.h"
 #include "Interaction/EnemyInterface.h"
+#include "UI/WidgetController/OverlayWidgetController.h"
 #include "EnemyCharacter.generated.h"
+
+class UWidgetComponent;
 
 /**
  * 
@@ -28,6 +31,13 @@ public:
 	virtual int32 GetPlayerLevel() override;
 	/** end Combat interface */
 
+	// this delegate already exists in overlaywidgetcontroller so we can reuse it at the cost of including the header class (not huge so it's ok) (an alternative is moving the delegate to a common class)
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxHealthChanged;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -37,5 +47,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")  // we dont use blueprintreadonly in private section
 	int32 Level = 1;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> HealthBar;
 
 };
