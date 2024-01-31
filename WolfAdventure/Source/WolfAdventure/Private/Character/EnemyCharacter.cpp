@@ -7,6 +7,8 @@
 #include "Components/WidgetComponent.h"
 #include "UI/Widget/BaseUserWidget.h"
 #include <AbilitySystem/BaseAttributeSet.h>
+#include "AbilitySystem/BaseAbilitySystemLibrary.h"
+
 
 AEnemyCharacter::AEnemyCharacter()
 {
@@ -63,6 +65,11 @@ void AEnemyCharacter::InitAbilityActorInfo()
 	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
 	InitializeDefaultAttributes();
+}
+
+void AEnemyCharacter::InitializeDefaultAttributes() const
+{
+	UBaseAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 }
 
 void AEnemyCharacter::HighLightActor()
