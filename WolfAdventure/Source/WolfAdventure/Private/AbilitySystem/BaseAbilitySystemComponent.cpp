@@ -25,6 +25,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		if (const UBaseGameplayAbility* BaseAbility = Cast<UBaseGameplayAbility>(AbilitySpec.Ability))
 		{
 			// dynamic ability tags are designed to be added and removed at RUNTIME
+			// specific to the player controlled character, enemies dont need to care about their input tag
 			AbilitySpec.DynamicAbilityTags.AddTag(BaseAbility->StartupInputTag);
 			// give ability can accept const abilitySpec but giveabilityandactivateonce only accepts non-const
 			//GiveAbilityAndActivateOnce(AbilitySpec);

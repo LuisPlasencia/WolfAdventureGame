@@ -12,6 +12,7 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
 class UGameplayAbility;
+class UAnimMontage;
 
 UCLASS(Abstract)  //prevents the class to be dragged into the level
 class WOLFADVENTURE_API ACharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -24,6 +25,16 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
+
+	// combat interface
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+
+	// only on the server
+	virtual void Die() override;
+
+	// handles what happens on all clients (and server) whenever a character dies (multicast RPC)
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void MulticastHandleDeath();
 
 protected:
 	virtual void BeginPlay() override;
@@ -67,4 +78,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 };

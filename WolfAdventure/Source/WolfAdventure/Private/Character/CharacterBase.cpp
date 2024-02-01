@@ -28,6 +28,41 @@ UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UAnimMontage* ACharacterBase::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage;
+}
+
+void ACharacterBase::Die()
+{
+	if (Weapon != nullptr)
+	{
+		// detach is a replicated action by default (no need to detach on clients)
+		Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+
+	}
+
+	MulticastHandleDeath();
+}
+
+void ACharacterBase::MulticastHandleDeath_Implementation()
+{
+	if (Weapon != nullptr)
+	{
+		Weapon->SetSimulatePhysics(true);
+		Weapon->SetEnableGravity(true);
+		Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	}
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+}
+
 // Called when the game starts or when spawned
 void ACharacterBase::BeginPlay()
 {

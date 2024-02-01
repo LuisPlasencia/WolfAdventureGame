@@ -7,6 +7,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include <Net/UnrealNetwork.h>
 #include "BaseGameplayTags.h"
+#include <Interaction/CombatInterface.h>
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
@@ -143,6 +144,37 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
+
+	// damage calculation
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if (LocalIncomingDamage > 0.f)
+		{
+			// we do the substraction here
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			const bool bFatal = NewHealth <= 0.f;
+
+			if (bFatal)
+			{
+				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
+			}
+			else
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FBaseGameplayTags::Get().Effects_HitReact);
+				// we are doing this on the server to the target of the effect
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+		}
 	}
 
 }

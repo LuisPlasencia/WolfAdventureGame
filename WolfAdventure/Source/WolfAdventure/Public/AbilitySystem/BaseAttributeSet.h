@@ -192,6 +192,16 @@ public:
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Mana);
 
 
+	/*
+	*  Meta Attributes (not replicated, we set them on the server, we process the data and then change any replicated values based on those calculations)
+	*/
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, IncomingDamage);
+
+
+
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData OldHealth) const;    // rep notify (called automatically when a server replicates the variable down to a client)
 

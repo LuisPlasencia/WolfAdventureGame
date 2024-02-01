@@ -30,6 +30,7 @@ public:
 
 	/** Combate Interface */
 	virtual int32 GetPlayerLevel() override;
+	virtual void Die() override;
 	/** end Combat interface */
 
 	// this delegate already exists in overlaywidgetcontroller so we can reuse it at the cost of including the header class (not huge so it's ok) (an alternative is moving the delegate to a common class)
@@ -38,6 +39,17 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnMaxHealthChanged;
+
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	bool bHitReacting = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	float BaseWalkSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float LifeSpan = 5.f;
 
 protected:
 	virtual void BeginPlay() override;

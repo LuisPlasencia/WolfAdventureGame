@@ -8,6 +8,8 @@
 #include "UI/Widget/BaseUserWidget.h"
 #include <AbilitySystem/BaseAttributeSet.h>
 #include "AbilitySystem/BaseAbilitySystemLibrary.h"
+#include "BaseGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 AEnemyCharacter::AEnemyCharacter()
@@ -22,11 +24,14 @@ AEnemyCharacter::AEnemyCharacter()
 	HealthBar->SetupAttachment(GetRootComponent());
 }
 
+
 void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 	InitAbilityActorInfo();
+	UBaseAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
 
 	// we set the widget controller of the progress bar used by the widget component
 	if (UBaseUserWidget* BaseUserWidget = Cast<UBaseUserWidget>(HealthBar->GetUserWidgetObject()))
@@ -51,10 +56,21 @@ void AEnemyCharacter::BeginPlay()
 			}
 		);
 
+		AbilitySystemComponent->RegisterGameplayTagEvent(FBaseGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this,
+			&AEnemyCharacter::HitReactTagChanged
+		);
+
 		// we broadcast those initial values so the progress bar updates itself
 		OnHealthChanged.Broadcast(BaseAS->GetHealth());
 		OnMaxHealthChanged.Broadcast(BaseAS->GetMaxHealth());
 	}
+}
+void AEnemyCharacter::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	// new count = 0 when we end the ability
+	bHitReacting = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;   // if true 0 if false basewalkspeed
 
 }
 
@@ -91,4 +107,11 @@ void AEnemyCharacter::UnHighlightActor()
 int32 AEnemyCharacter::GetPlayerLevel()
 {
 	return Level;
+}
+
+void AEnemyCharacter::Die()
+{
+	SetLifeSpan(LifeSpan);
+
+	Super::Die();
 }
