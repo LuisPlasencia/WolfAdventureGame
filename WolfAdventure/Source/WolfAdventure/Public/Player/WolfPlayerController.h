@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UBaseInputConfig;
 class UBaseAbilitySystemComponent;
 class UInputAction;
+class UDamageTextComponent;
 
 /**
  * 
@@ -24,6 +25,10 @@ class WOLFADVENTURE_API AWolfPlayerController : public APlayerController
 public:
 	AWolfPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
+
+	// CLIENT RPC (for the server controlled server will be executed on the server, for a client controlled character it will be called on the server but executed on the server and the client will see it)
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -54,4 +59,7 @@ private:
 	TObjectPtr<UBaseAbilitySystemComponent> BaseAbilitySystemComponent;
 
 	UBaseAbilitySystemComponent* GetASC();
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };

@@ -8,6 +8,8 @@
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include <BaseGameplayTags.h>
 #include <Interaction/EnemyInterface.h>
+#include "GameFramework/Character.h"
+#include "UI/Widget/DamageTextComponent.h"
 
 AWolfPlayerController::AWolfPlayerController()
 {
@@ -19,6 +21,27 @@ void AWolfPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 	CrosshairTrace();
+}
+
+void AWolfPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+{
+	// is valid checks is pending kill as well, target character may have a destroy call on it recently but damagetextcomponent is just a property that we aither set or not 
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	{
+		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+
+		// after we create a widget component dynamically we need to register it, we dont see this that often because we usually construct components with createDefaultSubObject that handles registration for us
+		// we are creating a component dynamically not in the constructor so we are manually registering this component
+		DamageText->RegisterComponent();  
+
+		// so that it starts off at the correct location and plays the animation
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+		// we dont want it to follow the enemy around so we detach it and let it float away according to its own animation
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+
+		DamageText->SetDamageText(DamageAmount);
+	}
 }
 
 void AWolfPlayerController::SetupInputComponent()

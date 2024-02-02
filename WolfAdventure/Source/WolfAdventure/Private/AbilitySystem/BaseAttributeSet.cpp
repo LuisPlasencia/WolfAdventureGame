@@ -8,6 +8,8 @@
 #include <Net/UnrealNetwork.h>
 #include "BaseGameplayTags.h"
 #include <Interaction/CombatInterface.h>
+#include <Kismet/GameplayStatics.h>
+#include <Player/WolfPlayerController.h>
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
@@ -174,9 +176,26 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				// we are doing this on the server to the target of the effect
 				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 			}
+
+			ShowFloatingText(Props, LocalIncomingDamage);
+
 		}
 	}
 
+}
+
+void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage) const
+{
+
+	// PostGameplayEffectExecute function is just called on the server so we need to make sure the clients can show the damage text accordingly using an RPC function
+	//  RPC is executed on the server if the controller player is local but if the controller player is remote the function will be called remotely on the client
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		if (AWolfPlayerController* PC = Cast<AWolfPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		{
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter);
+		}
+	}
 }
 
 void UBaseAttributeSet::OnRep_Health(const FGameplayAttributeData OldHealth) const
