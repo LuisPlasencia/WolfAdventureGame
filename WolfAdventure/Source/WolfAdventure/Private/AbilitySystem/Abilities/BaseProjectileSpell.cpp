@@ -42,7 +42,23 @@ void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		// Give the Projectile a Gameplay Effect Spec for causing Damage
 		Projectile->SetOwner(GetAvatarActorFromActorInfo());
 		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
-		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+
+		// Smart pointers are reference counted, as soon as an object has no references to it (pointers that point to it), it is automatically deleted by the Garbage Collector
+		// Weak object pointers have the property of not being reference counted (reference counting to delete an object or extend its lifetime for that matter is not affected by a weakobject pointer) 
+		// contexts arent necessarily tracked by GC in all cases so they need to be weak object pointers in the GameplayEffectTypes.h class (we avoid the GC deleting contexts when we need them)
+		// our EffectContextHandle is a local variable, it is not tracked by garbage collection
+		// this is optional to have more information on the context handle 
+		EffectContextHandle.SetAbility(this);
+		EffectContextHandle.AddSourceObject(Projectile);
+		TArray<TWeakObjectPtr<AActor>> Actors;
+		Actors.Add(Projectile);
+		EffectContextHandle.AddActors(Actors);
+		FHitResult HitResult;
+		HitResult.Location = ProjectileTargetLocation;
+		EffectContextHandle.AddHitResult(HitResult);
+
+		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
 		
 		const FBaseGameplayTags GameplayTags = FBaseGameplayTags::Get();
 		// we let the gameplay ability determine the damage of the gameplay effect based on the ability level hense Set By Caller (key (damage tag) - value pair) (we associate a key to a given value)
