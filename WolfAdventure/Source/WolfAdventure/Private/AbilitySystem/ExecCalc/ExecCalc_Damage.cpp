@@ -8,6 +8,7 @@
 #include <AbilitySystem/Data/CharacterClassInfo.h>
 #include <AbilitySystem/BaseAbilitySystemLibrary.h>
 #include <Interaction/CombatInterface.h>
+#include <BaseAbilityTypes.h>
 
 // damage execution calculations can be predicted
 // ExecCalcs can mmodify multiple attributes, but MMCs cannot
@@ -89,6 +90,11 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// in this case we are going to apply the block before any crit damage, armor penetration or damage boost (design choice)
 	const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
 
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
+	// extracting the methods to the library saves us the trouple of accessing the base gameplay effect context each time on different classes
+	UBaseAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
+
+
 	// If Block, halve the damage
 	Damage = bBlocked ? Damage / 2.f : Damage;
 
@@ -133,6 +139,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// Critical Hit Resistance reduces Critical Hit Chance by a certain percentage
 	const float EffectiveCriticalHitChance = SourceCriticalHitChance - TargetCriticalHitResistance * CriticalHitResistanceCoefficient;
 	const bool bCriticalHit = FMath::RandRange(1, 100) < EffectiveCriticalHitChance;
+
+	UBaseAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
 
 	// Double damage plus a bonus if critical hit
 	Damage = bCriticalHit ? 2.f * Damage + SourceCriticalHitDamage : Damage;

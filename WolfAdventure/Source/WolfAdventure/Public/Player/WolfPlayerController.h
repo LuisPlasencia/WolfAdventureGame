@@ -28,7 +28,7 @@ public:
 
 	// CLIENT RPC (for the server controlled server will be executed on the server, for a client controlled character it will be called on the server but executed on the server and the client will see it)
 	UFUNCTION(Client, Reliable)
-	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
+		void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
 
 protected:
 	virtual void SetupInputComponent() override;

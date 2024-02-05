@@ -10,6 +10,7 @@
 #include <Interaction/CombatInterface.h>
 #include <Kismet/GameplayStatics.h>
 #include <Player/WolfPlayerController.h>
+#include <AbilitySystem/BaseAbilitySystemLibrary.h>
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
@@ -177,14 +178,16 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 			}
 
-			ShowFloatingText(Props, LocalIncomingDamage);
+			const bool bBlock = UBaseAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+			const bool bCriticalHit = UBaseAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+			ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
 
 		}
 	}
 
 }
 
-void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage) const
+void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit) const
 {
 
 	// PostGameplayEffectExecute function is just called on the server so we need to make sure the clients can show the damage text accordingly using an RPC function
@@ -193,7 +196,7 @@ void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 	{
 		if (AWolfPlayerController* PC = Cast<AWolfPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
 		{
-			PC->ShowDamageNumber(Damage, Props.TargetCharacter);
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
 	}
 }

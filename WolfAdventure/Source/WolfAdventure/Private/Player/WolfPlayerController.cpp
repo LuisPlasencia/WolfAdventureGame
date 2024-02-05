@@ -23,7 +23,7 @@ void AWolfPlayerController::PlayerTick(float DeltaTime)
 	CrosshairTrace();
 }
 
-void AWolfPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+void AWolfPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
 {
 	// is valid checks is pending kill as well, target character may have a destroy call on it recently but damagetextcomponent is just a property that we aither set or not 
 	if (IsValid(TargetCharacter) && DamageTextComponentClass)
@@ -40,7 +40,7 @@ void AWolfPlayerController::ShowDamageNumber_Implementation(float DamageAmount, 
 		// we dont want it to follow the enemy around so we detach it and let it float away according to its own animation
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 
-		DamageText->SetDamageText(DamageAmount);
+		DamageText->SetDamageText(DamageAmount, bBlockedHit, bCriticalHit);
 	}
 }
 

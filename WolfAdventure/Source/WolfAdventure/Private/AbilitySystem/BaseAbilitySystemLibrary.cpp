@@ -8,6 +8,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <Game/WolfAdventureGameModeBase.h>
 #include "AbilitySystemComponent.h"
+#include <BaseAbilityTypes.h>
 
 UOverlayWidgetController* UBaseAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
 {
@@ -83,4 +84,40 @@ UCharacterClassInfo* UBaseAbilitySystemLibrary::GetCharacterClassInfo(const UObj
 	if (BaseGameMode == nullptr) return nullptr;
 
 	return BaseGameMode->CharacterClassInfo;
+}
+
+bool UBaseAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	// EffectContextHandle.Get returns a const, if we are static castings we need to store the result in a const, if we want to store it in a non const we would have to const_cast to cast away the constness
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->IsBlockedHit();
+	}
+	return false;
+}
+
+bool UBaseAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	// EffectContextHandle.Get returns a const since we are passing in a const parameter variable, if we are static castings we need to store the result in a const, if we want to store it in a non const we would have to const_cast to cast away the constness
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->IsCriticalHit();
+	}
+	return false;
+}
+
+void UBaseAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit)
+{
+	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		BaseEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
+}
+
+void UBaseAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
+{
+	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		BaseEffectContext->SetIsBlockedHit(bInIsBlockedHit);
+	}
 }
