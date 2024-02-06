@@ -34,6 +34,12 @@ UBaseAttributeSet::UBaseAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
 
+	/* Resistance Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Arcane, GetArcaneResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Fire, GetFireResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Lightning, GetLightningResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Physical, GetPhysicalResistanceAttribute);
+
 
 	// FunctionPointer is a variable that can hold a function with that signature  (returns calling FunctionPointer()), saves us the trouble of binding a delegate to the TMap
 	// FunctionPointer = GetIntelligenceAttribute;
@@ -72,6 +78,13 @@ void UBaseAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+
+	// Resistance Attributes
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, FireResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, LightningResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, ArcaneResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
 
 	// Vital Attributes
 
@@ -149,7 +162,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	}
 
-	// damage calculation
+	// damage calculation (IncomingDamage is a meta attribute, it is NOT replicated on clients (only set on the server) so this if statement is only relevant for the server)
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
@@ -194,8 +207,11 @@ void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 	//  RPC is executed on the server if the controller player is local but if the controller player is remote the function will be called remotely on the client
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
-		if (AWolfPlayerController* PC = Cast<AWolfPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		// all controllers exist on the server
+		if (AWolfPlayerController* PC = Cast<AWolfPlayerController>(Props.SourceCharacter->Controller))
 		{
+			// only the player controller owned by a given player exists on that client's machine (the server controlled player controller doesnt exist on clients)
+			// this method is replicated so it will be executed on clients but the clients dont have all the player controllers, just the one they are controlling (keep in mind)
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
 	}
@@ -282,3 +298,22 @@ void UBaseAttributeSet::OnRep_MaxMana(const FGameplayAttributeData OldMaxMana) c
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, MaxMana, OldMaxMana);
 }
 
+void UBaseAttributeSet::OnRep_FireResistance(const FGameplayAttributeData OldFireResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, FireResistance, OldFireResistance);
+}
+
+void UBaseAttributeSet::OnRep_LightningResistance(const FGameplayAttributeData OldLightningResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, LightningResistance, OldLightningResistance);
+}
+
+void UBaseAttributeSet::OnRep_ArcaneResistance(const FGameplayAttributeData OldArcaneResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, ArcaneResistance, OldArcaneResistance);
+}
+
+void UBaseAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData OldPhysicalResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, PhysicalResistance, OldPhysicalResistance);
+}

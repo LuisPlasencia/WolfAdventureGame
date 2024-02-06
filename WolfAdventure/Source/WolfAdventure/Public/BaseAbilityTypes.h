@@ -62,7 +62,7 @@ protected:
 
 
 // we need to set true some qualities that are important for serialization and for the reflection system (custom aspects of a script struct - used for serialization and for the reflection system)
-// defines what can be done with FBaseGameplayEffectContext
+// defines what can be done with FBaseGameplayEffectContext - StructOps = Determines what the Script Struct is capable of,  Script Struct = Version of a structs that represents it in the reflection system (much like UClass for classes)
 template<>
 struct TStructOpsTypeTraits<FBaseGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FBaseGameplayEffectContext>
 {

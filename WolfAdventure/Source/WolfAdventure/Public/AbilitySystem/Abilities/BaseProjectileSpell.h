@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/BaseGameplayAbility.h"
+#include "AbilitySystem/Abilities/BaseDamageGameplayAbility.h"
 #include "BaseProjectileSpell.generated.h"
 
 class ABaseProjectile;
@@ -13,7 +13,7 @@ class UGameplayEffect;
  * 
  */
 UCLASS()
-class WOLFADVENTURE_API UBaseProjectileSpell : public UBaseGameplayAbility
+class WOLFADVENTURE_API UBaseProjectileSpell : public UBaseDamageGameplayAbility
 {
 	GENERATED_BODY()
 	
@@ -27,6 +27,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ABaseProjectile> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 };

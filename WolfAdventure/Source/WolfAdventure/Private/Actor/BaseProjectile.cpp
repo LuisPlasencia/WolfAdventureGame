@@ -52,7 +52,8 @@ void ABaseProjectile::Destroyed()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		LoopingSoundComponent->Stop();
+		// the projectile can be destroyed before it can construct a loopingsoundcomponent 
+		if (LoopingSoundComponent) LoopingSoundComponent->Stop();
 	}
 	Super::Destroyed();
 }
@@ -60,10 +61,18 @@ void ABaseProjectile::Destroyed()
 void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetOwner()) return;
-	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	LoopingSoundComponent->Stop();
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
+	// on clients, the damageEffectSpecHandle data is not valid, since in spawnProjectile (BaseProjectileSpell class), we make sure to only set the spec handle on the server and it is not a replicated variable
+	if (DamageEffectSpecHandle.Data.IsValid() && DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
+	{
+		return;
+	}
+	if (!bHit)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+		if (LoopingSoundComponent) LoopingSoundComponent->Stop();
+	}
+
 	// there is a chance that Destroy could replicate down to the client before the client has the function sphereoverlap is called (destroyed before sound and niagara) thats why we use the boolean
 	if (HasAuthority())
 	{

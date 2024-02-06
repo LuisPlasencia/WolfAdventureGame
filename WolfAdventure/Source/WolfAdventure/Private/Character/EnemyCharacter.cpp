@@ -31,7 +31,12 @@ void AEnemyCharacter::BeginPlay()
 	
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 	InitAbilityActorInfo();
-	UBaseAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	// only the server can access the game mode 
+	if (HasAuthority())
+	{
+		UBaseAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	}
+
 
 	// we set the widget controller of the progress bar used by the widget component
 	if (UBaseUserWidget* BaseUserWidget = Cast<UBaseUserWidget>(HealthBar->GetUserWidgetObject()))
@@ -80,7 +85,12 @@ void AEnemyCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitializeDefaultAttributes();
+	// only the server can access the game mode 
+	if (HasAuthority())
+	{
+		InitializeDefaultAttributes();
+	}
+
 }
 
 void AEnemyCharacter::InitializeDefaultAttributes() const

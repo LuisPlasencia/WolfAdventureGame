@@ -26,7 +26,9 @@ void AWolfPlayerController::PlayerTick(float DeltaTime)
 void AWolfPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
 {
 	// is valid checks is pending kill as well, target character may have a destroy call on it recently but damagetextcomponent is just a property that we aither set or not 
-	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	// isLocalController so we can only see the damage text if we are the local controller (if we are on the server and we are calling this on a client owned player controller, it will return false and the server will not see those damage numbers) 
+	// Client's RPC's like this function are executed on the server but also on the client, thats why we make IsLocalController check, so that we can only see the damage floating text on the correct machine
+	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController()) 
 	{
 		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
 

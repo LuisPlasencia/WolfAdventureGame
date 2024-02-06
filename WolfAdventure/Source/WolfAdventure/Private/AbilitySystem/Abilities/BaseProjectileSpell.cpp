@@ -61,9 +61,14 @@ void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
 		
 		const FBaseGameplayTags GameplayTags = FBaseGameplayTags::Get();
-		// we let the gameplay ability determine the damage of the gameplay effect based on the ability level hense Set By Caller (key (damage tag) - value pair) (we associate a key to a given value)
-		const float ScaledDamage = Damage.GetValueAtLevel(10);  // int 32 but requires a float but an implicit conversion is performed
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, ScaledDamage);
+
+		for (auto& Pair : DamageTypes)
+		{
+			// we let the gameplay ability determine the damage of the gameplay effect based on the ability level hense Set By Caller (key (damage tag) - value pair) (we associate a key to a given value)
+			const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());  // int 32 but requires a float but an implicit conversion is performed
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Pair.Key, ScaledDamage);
+		}
+
 		Projectile->DamageEffectSpecHandle = SpecHandle;
 
 		Projectile->FinishSpawning(SpawnTransform);
