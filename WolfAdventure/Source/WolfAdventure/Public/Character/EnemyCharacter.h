@@ -10,6 +10,8 @@
 #include "EnemyCharacter.generated.h"
 
 class UWidgetComponent;
+class UBehaviorTree;
+class ABaseAIController;
 
 /**
  * 
@@ -21,6 +23,9 @@ class WOLFADVENTURE_API AEnemyCharacter : public ACharacterBase, public IEnemyIn
 	
 public:
 	AEnemyCharacter();
+
+	// at this point we can savely cast the controller 
+	virtual void PossessedBy(AController* NewController) override;
 
 
 	/** Enemy Interface */
@@ -68,4 +73,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
 
+	UPROPERTY(EditAnywhere, Category = "AI")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY()
+	TObjectPtr<ABaseAIController> BaseAIController;
 };

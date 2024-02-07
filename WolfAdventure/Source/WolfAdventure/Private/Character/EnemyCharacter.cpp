@@ -10,6 +10,9 @@
 #include "AbilitySystem/BaseAbilitySystemLibrary.h"
 #include "BaseGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AI/BaseAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 
 AEnemyCharacter::AEnemyCharacter()
@@ -18,10 +21,30 @@ AEnemyCharacter::AEnemyCharacter()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	//GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	AttributeSet = CreateDefaultSubobject<UBaseAttributeSet>("AttributeSet");
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+void AEnemyCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// AI Only matters on the server because AI Characters are controlled on the server, all the logic is on the server, anything the clients see is a result of replication
+	if (!HasAuthority()) return;
+	BaseAIController = Cast<ABaseAIController>(NewController);
+	BaseAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	BaseAIController->RunBehaviorTree(BehaviorTree);
+	BaseAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	BaseAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ECharacterClass::Warrior);
+
 }
 
 
@@ -76,6 +99,7 @@ void AEnemyCharacter::HitReactTagChanged(const FGameplayTag CallbackTag, int32 N
 	// new count = 0 when we end the ability
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;   // if true 0 if false basewalkspeed
+	BaseAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 
 }
 
