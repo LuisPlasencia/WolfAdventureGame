@@ -207,11 +207,18 @@ void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 	//  RPC is executed on the server if the controller player is local but if the controller player is remote the function will be called remotely on the client
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
-		// all controllers exist on the server
+		// all controllers exist on the server. Source character is the character doing the damage
 		if (AWolfPlayerController* PC = Cast<AWolfPlayerController>(Props.SourceCharacter->Controller))
 		{
 			// only the player controller owned by a given player exists on that client's machine (the server controlled player controller doesnt exist on clients)
 			// this method is replicated so it will be executed on clients but the clients dont have all the player controllers, just the one they are controlling (keep in mind)
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+			return;
+		}
+		
+		// in this case, an enemy has hit the player so we cast the targetCharacter as the Player instead
+		if (AWolfPlayerController* PC = Cast<AWolfPlayerController>(Props.TargetCharacter->Controller))
+		{
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
 	}

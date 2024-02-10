@@ -57,7 +57,7 @@ void AEnemyCharacter::BeginPlay()
 	// only the server can access the game mode 
 	if (HasAuthority())
 	{
-		UBaseAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+		UBaseAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);
 	}
 
 
@@ -148,4 +148,14 @@ void AEnemyCharacter::Die()
 	SetLifeSpan(LifeSpan);
 
 	Super::Die();
+}
+
+void AEnemyCharacter::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* AEnemyCharacter::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
 }

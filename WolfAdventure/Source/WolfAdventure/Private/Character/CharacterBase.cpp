@@ -62,6 +62,8 @@ void ACharacterBase::MulticastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
 
+	// Because this function is an RPC, even though bDead is not set to isReplicable, because we are changing it inside an RPC, it will replicate to all clients as well (clients and server)
+	bDead = true;
 }
 
 // Called when the game starts or when spawned
@@ -71,10 +73,20 @@ void ACharacterBase::BeginPlay()
 	
 }
 
-FVector ACharacterBase::GetCombatSocketLocation()
+FVector ACharacterBase::GetCombatSocketLocation_Implementation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(WeaponTipSocketName);
+}
+
+bool ACharacterBase::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* ACharacterBase::GetAvatar_Implementation()
+{
+	return this;
 }
 
 void ACharacterBase::InitAbilityActorInfo()

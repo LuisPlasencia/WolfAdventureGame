@@ -51,6 +51,8 @@ public:
 	FGameplayTag Damage_Arcane;
 	FGameplayTag Damage_Physical;
 
+	FGameplayTag Abilities_Attack;
+
 	// Associates resistances to damage types (for convenience, so we dont have to go out of our way to hard code these relationships) (+ more general algorithms)
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 

@@ -33,9 +33,11 @@ public:
 	virtual void UnHighlightActor() override;
 	/** end Enemy Interface */
 
-	/** Combate Interface */
+	/** Combat Interface */
 	virtual int32 GetPlayerLevel() override;
 	virtual void Die() override;
+	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() const override;
 	/** end Combat interface */
 
 	// this delegate already exists in overlaywidgetcontroller so we can reuse it at the cost of including the header class (not huge so it's ok) (an alternative is moving the delegate to a common class)
@@ -55,6 +57,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	TObjectPtr<AActor> CombatTarget;
 
 protected:
 	virtual void BeginPlay() override;

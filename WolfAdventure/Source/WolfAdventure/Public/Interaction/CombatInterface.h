@@ -27,7 +27,9 @@ class WOLFADVENTURE_API ICombatInterface
 public:
 	// in this case we dont make it pure virtual so the implementation is not compulsary but we can define a default return value in the cpp
 	virtual int32 GetPlayerLevel();
-	virtual FVector GetCombatSocketLocation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetCombatSocketLocation();
 
 	// for blueprint imeplementable events we do not make them virtual
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -41,4 +43,11 @@ public:
 	UAnimMontage* GetHitReactMontage();
 
 	virtual void Die() = 0;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsDead() const;
+
+	// if we are casting inside it, we cant make it const. We want to pass "this" in CharacterBaseActor and that is not an Actor but a child so an implicit Cast will make the function non constable
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AActor* GetAvatar();
 };

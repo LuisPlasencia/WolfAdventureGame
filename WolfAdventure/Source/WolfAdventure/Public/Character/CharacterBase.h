@@ -26,11 +26,14 @@ public:
 
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
-	// combat interface
+	/** Combat Interface  */
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	virtual void Die() override; 	// only on the server
+	virtual FVector GetCombatSocketLocation_Implementation() override;
+	virtual bool IsDead_Implementation() const override;
+	virtual AActor* GetAvatar_Implementation() override;
+	/** end Combat Interface  */
 
-	// only on the server
-	virtual void Die() override;
 
 	// handles what happens on all clients (and server) whenever a character dies (multicast RPC)
 	UFUNCTION(NetMulticast, Reliable)
@@ -42,13 +45,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
-
 	// we want this to know where to spawn abilities
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
 
-	virtual FVector GetCombatSocketLocation() override;
-
+	bool bDead = false;
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent>  AbilitySystemComponent;

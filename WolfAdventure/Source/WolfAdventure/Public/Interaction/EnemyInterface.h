@@ -24,4 +24,12 @@ class WOLFADVENTURE_API IEnemyInterface
 public:
 	virtual void HighLightActor() = 0;
 	virtual void UnHighlightActor() = 0;
+
+	// we want to implement functionality and make the call in blueprint, in interfaces we need to make a BP native event so we can override its implementation in our enemy class
+	// BP native events are not marked virtual, they auto generate an implementation version thats virtual that we can override
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SetCombatTarget(AActor* InCombatTarget);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	AActor* GetCombatTarget() const;
 };
