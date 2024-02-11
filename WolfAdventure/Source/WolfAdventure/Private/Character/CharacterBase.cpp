@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include <AbilitySystem/BaseAbilitySystemComponent.h>
 #include "Components/CapsuleComponent.h"
+#include "BaseGameplayTags.h"
 #include <WolfAdventure/WolfAdventure.h>
 
 ACharacterBase::ACharacterBase()
@@ -73,10 +74,27 @@ void ACharacterBase::BeginPlay()
 	
 }
 
-FVector ACharacterBase::GetCombatSocketLocation_Implementation()
+FVector ACharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	// Return correct socket based on MontageTag
+	const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(Weapon))
+	{
+		return Weapon->GetSocketLocation(WeaponTipSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	{
+		return GetMesh()->GetSocketLocation(LeftHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	{
+		return GetMesh()->GetSocketLocation(RightHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Bite))
+	{
+		return GetMesh()->GetSocketLocation(BiteSocketName);
+	}
+	return FVector();
 }
 
 bool ACharacterBase::IsDead_Implementation() const
@@ -87,6 +105,11 @@ bool ACharacterBase::IsDead_Implementation() const
 AActor* ACharacterBase::GetAvatar_Implementation()
 {
 	return this;
+}
+
+TArray<FTaggedMontage> ACharacterBase::GetAttackMontages_Implementation()
+{
+	return AttackMontages;
 }
 
 void ACharacterBase::InitAbilityActorInfo()

@@ -53,6 +53,11 @@ public:
 
 	FGameplayTag Abilities_Attack;
 
+	FGameplayTag Montage_Attack_Weapon;
+	FGameplayTag Montage_Attack_RightHand;
+	FGameplayTag Montage_Attack_LeftHand;
+	FGameplayTag Montage_Attack_Bite;
+
 	// Associates resistances to damage types (for convenience, so we dont have to go out of our way to hard code these relationships) (+ more general algorithms)
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 

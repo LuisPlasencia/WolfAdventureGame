@@ -94,13 +94,19 @@ void AEnemyCharacter::BeginPlay()
 		OnMaxHealthChanged.Broadcast(BaseAS->GetMaxHealth());
 	}
 }
+
+// called on both server and clients
 void AEnemyCharacter::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	// new count = 0 when we end the ability
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;   // if true 0 if false basewalkspeed
-	BaseAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 
+	// our aura ai controller is only going to be valid on the server 
+	if (BaseAIController && BaseAIController->GetBlackboardComponent())
+	{
+		BaseAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	}
 }
 
 void AEnemyCharacter::InitAbilityActorInfo()
