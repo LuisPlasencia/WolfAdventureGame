@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/BaseGameplayAbility.h"
+#include <Interaction/CombatInterface.h>
 #include "BaseDamageGameplayAbility.generated.h"
+
 
 /**
  * 
@@ -27,4 +29,7 @@ protected:
 	// we set this in the blueprint with a data asset with differente curves depending on the type of damage so we have different values for different ability levels
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+
+	UFUNCTION(BlueprintPure)
+	FTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaggedMontage>& TaggedMontages) const;
 };
