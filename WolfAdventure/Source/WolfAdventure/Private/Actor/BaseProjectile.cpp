@@ -63,7 +63,7 @@ void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 {
 	if (OtherActor == GetOwner()) return;
 	// on clients, the damageEffectSpecHandle data is not valid, since in spawnProjectile (BaseProjectileSpell class), we make sure to only set the spec handle on the server and it is not a replicated variable
-	if (DamageEffectSpecHandle.Data.IsValid() && DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
+	if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
 	{
 		return;
 	}
