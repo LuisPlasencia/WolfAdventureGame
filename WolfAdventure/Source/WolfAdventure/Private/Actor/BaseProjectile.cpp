@@ -55,6 +55,7 @@ void ABaseProjectile::Destroyed()
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 		// the projectile can be destroyed before it can construct a loopingsoundcomponent 
 		if (LoopingSoundComponent) LoopingSoundComponent->Stop();
+		bHit = true;
 	}
 	Super::Destroyed();
 }
@@ -76,6 +77,7 @@ void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 		if (LoopingSoundComponent) LoopingSoundComponent->Stop();
+		bHit = true;
 	}
 
 	// there is a chance that Destroy could replicate down to the client before the client has the function sphereoverlap is called (destroyed before sound and niagara) thats why we use the boolean

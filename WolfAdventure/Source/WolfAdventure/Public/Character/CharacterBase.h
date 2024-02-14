@@ -13,6 +13,7 @@ class UAttributeSet;
 class UGameplayEffect;
 class UGameplayAbility;
 class UAnimMontage;
+class UNiagaraSystem;
 
 UCLASS(Abstract)  //prevents the class to be dragged into the level
 class WOLFADVENTURE_API ACharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -33,6 +34,8 @@ public:
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
+	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag);
 	/** end Combat Interface  */
 
 
@@ -104,6 +107,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	UNiagaraSystem* BloodEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	USoundBase* DeathSound;
 
 private:
 

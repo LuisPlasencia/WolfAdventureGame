@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "BaseGameplayTags.h"
 #include <WolfAdventure/WolfAdventure.h>
+#include <Kismet/GameplayStatics.h>
 
 ACharacterBase::ACharacterBase()
 {
@@ -48,6 +49,8 @@ void ACharacterBase::Die()
 
 void ACharacterBase::MulticastHandleDeath_Implementation()
 {
+	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
+
 	if (Weapon != nullptr)
 	{
 		Weapon->SetSimulatePhysics(true);
@@ -78,19 +81,19 @@ FVector ACharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTa
 {
 	// Return correct socket based on MontageTag
 	const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(Weapon))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Weapon) && IsValid(Weapon))
 	{
 		return Weapon->GetSocketLocation(WeaponTipSocketName);
 	}
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_LeftHand))
 	{
 		return GetMesh()->GetSocketLocation(LeftHandSocketName);
 	}
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_RightHand))
 	{
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Bite))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Bite))
 	{
 		return GetMesh()->GetSocketLocation(BiteSocketName);
 	}
@@ -110,6 +113,23 @@ AActor* ACharacterBase::GetAvatar_Implementation()
 TArray<FTaggedMontage> ACharacterBase::GetAttackMontages_Implementation()
 {
 	return AttackMontages;
+}
+
+UNiagaraSystem* ACharacterBase::GetBloodEffect_Implementation()
+{
+	return BloodEffect;
+}
+
+FTaggedMontage ACharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
+{
+	for (FTaggedMontage TaggedMontage : AttackMontages)
+	{
+		if (TaggedMontage.MontageTag == MontageTag)
+		{
+			return TaggedMontage;
+		}
+	}
+	return FTaggedMontage();
 }
 
 void ACharacterBase::InitAbilityActorInfo()
