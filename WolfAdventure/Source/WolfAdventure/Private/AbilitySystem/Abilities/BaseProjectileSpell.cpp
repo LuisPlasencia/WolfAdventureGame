@@ -15,7 +15,7 @@ void UBaseProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 }
 
-void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag)
 {
 
 
@@ -24,7 +24,7 @@ void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 	if (!bIsServer) return;
 
 	// we want a socket location from an actor that implements the combat interface, this way we can use this in different actors and not just the wolf (abstractions > specifics)
-	const FVector SocketLocation =  ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), FBaseGameplayTags::Get().CombatSocket_Weapon);
+	const FVector SocketLocation =  ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
 	FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 	// Rotation.Pitch = 0.f; // ground parallel
 
