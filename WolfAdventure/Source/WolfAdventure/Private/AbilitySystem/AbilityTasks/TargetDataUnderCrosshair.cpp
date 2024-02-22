@@ -52,7 +52,8 @@ void UTargetDataUnderCrosshair::SendCrosshairData()
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	FVector2D CrosshairPosition = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 3);
-	PC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_WorldDynamic, false, CrosshairHit);
+	//PC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_WorldDynamic, false, CrosshairHit);
+	PC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_Visibility, false, CrosshairHit);
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();

@@ -65,34 +65,58 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 	);
 
-
-	// Binding a lambda (anonymous function) saves us the trouble of declaring callback member functions for all the delegates that we want to bind to (+simplicity)
-	Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[this](const FGameplayTagContainer& AssetTags)
+	if (UBaseAbilitySystemComponent* BaseASC = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		// abilities may have been given prior to us binding to the callback (race condition), so we check for that case
+		if (BaseASC->bStartupAbilitiesGiven)
 		{
-			for (const FGameplayTag& Tag : AssetTags)  // a reference so we dont copy the tag (+efficiency)
-			{
-				// For example, say that Tag = Message.HealthPotion
-				// "Message.HealthPotion".MatchesTag("Message") will return True, "Message".MatchesTag("Message.HealthPotion") will return False
-				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message")); // returns tags in our config file (project settings)
-				if (Tag.MatchesTag(MessageTag))
-				{
-					//const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
-					//GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
-
-					// in order to call a member function in a lambda we need to capture it since a lambda (anonymous function) doesnt know about the class it is in but does know a function like GEngine since it is global to the project
-					// by capturing "this" we are capturing the entire object that we are in (the entire class)
-					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-
-					// we want to send the row to the widget (broadcast it up to the widget)
-					// we want a delegate that can send through an FUIWidgetRow
-					MessageWidgetRowDelegate.Broadcast(*Row);
-				}
-
-
-			}
+			OnInitializeStartupAbilities(BaseASC);
 		}
-	);
+		else
+		{
+			BaseASC->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+		}
+
+
+		// Binding a lambda (anonymous function) saves us the trouble of declaring callback member functions for all the delegates that we want to bind to (+simplicity)
+		BaseASC->EffectAssetTags.AddLambda(
+			[this](const FGameplayTagContainer& AssetTags)
+			{
+				for (const FGameplayTag& Tag : AssetTags)  // a reference so we dont copy the tag (+efficiency)
+				{
+					// For example, say that Tag = Message.HealthPotion
+					// "Message.HealthPotion".MatchesTag("Message") will return True, "Message".MatchesTag("Message.HealthPotion") will return False
+					FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message")); // returns tags in our config file (project settings)
+					if (Tag.MatchesTag(MessageTag))
+					{
+						//const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
+						//GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
+
+						// in order to call a member function in a lambda we need to capture it since a lambda (anonymous function) doesnt know about the class it is in but does know a function like GEngine since it is global to the project
+						// by capturing "this" we are capturing the entire object that we are in (the entire class)
+						const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+
+						// we want to send the row to the widget (broadcast it up to the widget)
+						// we want a delegate that can send through an FUIWidgetRow
+						MessageWidgetRowDelegate.Broadcast(*Row);
+					}
+
+
+				}
+			}
+		);
+	}
+
+
+
+}
+
+void UOverlayWidgetController::OnInitializeStartupAbilities(UBaseAbilitySystemComponent* BaseAbilitySystemComponent)
+{
+	// TODO Get Information about all given abilities, look up their Ability Info, and broadcast it to widgets
+	if (!BaseAbilitySystemComponent->bStartupAbilitiesGiven) return;
+
+
 }
 
 //void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const

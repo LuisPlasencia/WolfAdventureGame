@@ -36,7 +36,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidge
 
 struct FOnAttributeChangeData;
 class UBaseUserWidget;
-
+class UAbilityInfo;
+class UBaseAbilitySystemComponent;
 
 /**
  * 
@@ -72,6 +73,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
+
 	// We do this with lambdas instead of callback functions now since they just do simple stuff
 	//void HealthChanged(const FOnAttributeChangeData& Data) const; // needs this signature (return + params) in order to be binded as a callback to the delegates in the ASC
 	//void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
@@ -80,6 +84,8 @@ protected:
 
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag); // able to return any type of data table row (T is the Type in the template function)
+
+	void OnInitializeStartupAbilities(UBaseAbilitySystemComponent* BaseAbilitySystemComponent);
 };
 
 
