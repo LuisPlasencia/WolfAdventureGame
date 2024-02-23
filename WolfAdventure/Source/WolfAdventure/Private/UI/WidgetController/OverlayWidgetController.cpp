@@ -4,6 +4,7 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include <AbilitySystem/BaseAttributeSet.h>
 #include <AbilitySystem/BaseAbilitySystemComponent.h>
+#include <AbilitySystem/Data/AbilityInfo.h>
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -100,22 +101,28 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 						// we want a delegate that can send through an FUIWidgetRow
 						MessageWidgetRowDelegate.Broadcast(*Row);
 					}
-
-
 				}
 			}
 		);
 	}
 
-
-
 }
 
 void UOverlayWidgetController::OnInitializeStartupAbilities(UBaseAbilitySystemComponent* BaseAbilitySystemComponent)
 {
-	// TODO Get Information about all given abilities, look up their Ability Info, and broadcast it to widgets
+	// Get Information about all given abilities, look up their Ability Info, and broadcast it to widgets
 	if (!BaseAbilitySystemComponent->bStartupAbilitiesGiven) return;
 
+	FForEachAbility BroadcastDelegate;
+	BroadcastDelegate.BindLambda([this, BaseAbilitySystemComponent](const FGameplayAbilitySpec& AbilitySpec)
+	{
+		// we need a way to figure out the ability tag for a given ability spec
+		FBaseAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(BaseAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+		// the input tag is set by code, not in the blueprint data asset, thats why we need to retrieve it
+		Info.InputTag = BaseAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+		AbilityInfoDelegate.Broadcast(Info);
+	});
+	BaseAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
 
 }
 

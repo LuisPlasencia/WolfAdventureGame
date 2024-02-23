@@ -4,7 +4,7 @@
 #include "AbilitySystem/Data/AbilityInfo.h"
 #include "WolfAdventure/BaseLogChannels.h"
 
-FBaseAbilityInfo UAbilityInfo::FindAttributeInfoForTag(const FGameplayTag& AbilityTag, bool bLogNotFound) const
+FBaseAbilityInfo UAbilityInfo::FindAbilityInfoForTag(const FGameplayTag& AbilityTag, bool bLogNotFound) const
 {
 	for (const FBaseAbilityInfo Info : AbilityInformation)
 	{

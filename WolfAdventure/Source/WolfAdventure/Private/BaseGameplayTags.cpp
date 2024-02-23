@@ -230,6 +230,16 @@ void FBaseGameplayTags::InitializeNativeGameplayTags()
 
 
 	/*
+	*   Cooldown
+	*/
+
+	GameplayTags.Cooldown_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Fire.FireBolt"),
+		FString("FireBolt Cooldown Ability Tag")
+	);
+
+
+	/*
 	*   Combat Sockets
 	*/
 

@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include "BaseGameplayTags.h"
+#include "WolfAdventure/BaseLogChannels.h"
 #include <AbilitySystem/Abilities/BaseGameplayAbility.h>
 
 void UBaseAbilitySystemComponent::AbilityActorInfoSet()
@@ -32,6 +33,8 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 			GiveAbility(AbilitySpec);
 		}
 	}
+	// remember that this is only called on the server. For the client side, the OnRep_ActivateAbilities() virtual RPC (remote procedure call - virtual rep notify) function will get called and we will broadcast there for the clients
+	// the abilitysystemcomponent Activatable abilities container replicates (replicated variable) using OnRep_ActivateAbilities once we call giveAbility aka the container changes
 	bStartupAbilitiesGiven = true;
 	AbilitiesGivenDelegate.Broadcast(this);
 }
@@ -69,6 +72,62 @@ void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 			// we tell the ability that its input is being released
 			AbilitySpecInputReleased(AbilitySpec);
 		}
+	}
+
+}
+
+void UBaseAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+	// (+Good Practice) this is how we lock the list (activatable abilities container) until we have finished our for loop just in case anything changes while we are looping (abilities can change status and become blocked or non activatable by some gameplay tag etc)
+	// it will keep track of any abilities that are attempted to be removed or added and wait until this scope has finished before mutating the list (this is why we manage this in the ability system componenent rather than outside of it, in the overlaywidgetcomponent f.e.)
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(AbilitySpec))
+		{
+			UE_LOG(LogBase, Error, TEXT("Failed to execute delegate in %hs"), __FUNCTION__);  // we log the name of the function
+		}
+
+	}
+}
+
+FGameplayTag UBaseAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	// for a given ability spec, we are going to look at that abilityspec's ability tags and assuming it only has one ability tag that has "abilities" in it, we are going to return that tag
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	
+	return FGameplayTag();
+}
+
+FGameplayTag UBaseAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+	{
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+		{
+			return Tag;
+		}
+	}
+	return FGameplayTag();
+}
+
+void UBaseAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+
+	if (!bStartupAbilitiesGiven)
+	{
+		bStartupAbilitiesGiven = true;
+		AbilitiesGivenDelegate.Broadcast(this);
 	}
 
 }

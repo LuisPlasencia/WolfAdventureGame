@@ -19,6 +19,9 @@ struct FBaseAbilityInfo
 	FGameplayTag InputTag = FGameplayTag();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag CooldownTag = FGameplayTag();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UTexture2D> Icon = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -38,6 +41,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AbilityInformation")
 	TArray<FBaseAbilityInfo> AbilityInformation;
 
-	FBaseAbilityInfo FindAttributeInfoForTag(const FGameplayTag& AbilityTag, bool bLogNotFound = false) const;
+	FBaseAbilityInfo FindAbilityInfoForTag(const FGameplayTag& AbilityTag, bool bLogNotFound = false) const;
 
 };
