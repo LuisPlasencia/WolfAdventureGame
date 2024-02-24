@@ -146,6 +146,11 @@ void ACharacterBase::IncrementMinionCount_Implementation(int32 Amount)
 	MinionCount += Amount;
 }
 
+ECharacterClass ACharacterBase::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
+}
+
 void ACharacterBase::InitAbilityActorInfo()
 {
 }

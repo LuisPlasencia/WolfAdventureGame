@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "CharacterBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -38,6 +39,7 @@ public:
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag);
 	virtual int32 GetMinionCount_Implementation();
 	virtual void IncrementMinionCount_Implementation(int32 Amount);
+	virtual ECharacterClass GetCharacterClass_Implementation();
 	/** end Combat Interface  */
 
 
@@ -121,6 +123,10 @@ protected:
 	/* Minions */
 
 	int32 MinionCount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")  // we dont use blueprintreadonly in private section
+	ECharacterClass CharacterClass = ECharacterClass::Warrior;
+
 
 private:
 

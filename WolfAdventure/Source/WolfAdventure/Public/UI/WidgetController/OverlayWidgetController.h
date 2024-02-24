@@ -70,6 +70,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
 	FAbilityInfoSignature AbilityInfoDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
+	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
+
 protected: 
 
 	// data table to store information depending on the gameplay tag 
@@ -89,6 +92,8 @@ protected:
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag); // able to return any type of data table row (T is the Type in the template function)
 
 	void OnInitializeStartupAbilities(UBaseAbilitySystemComponent* BaseAbilitySystemComponent);
+
+	void OnXPChanged(int32 NewXP) const;
 };
 
 

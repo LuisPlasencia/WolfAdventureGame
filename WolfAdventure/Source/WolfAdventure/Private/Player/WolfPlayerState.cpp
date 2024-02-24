@@ -22,6 +22,7 @@ void AWolfPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWolfPlayerState, Level);
+	DOREPLIFETIME(AWolfPlayerState, XP);
 }
 
 UAbilitySystemComponent* AWolfPlayerState::GetAbilitySystemComponent() const
@@ -29,7 +30,36 @@ UAbilitySystemComponent* AWolfPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void AWolfPlayerState::AddToXP(int32 InXP)
+{
+	XP += InXP;
+	OnXPChangedDelegate.Broadcast(XP);
+}
+
+void AWolfPlayerState::AddToLevel(int32 InLevel)
+{
+	Level += InLevel;
+	OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void AWolfPlayerState::SetXP(int32 InXP)
+{
+	XP = InXP;
+	OnXPChangedDelegate.Broadcast(XP);
+}
+
+void AWolfPlayerState::SetLevel(int32 InLevel)
+{
+	Level = InLevel;
+	OnLevelChangedDelegate.Broadcast(Level);
+}
+
 void AWolfPlayerState::OnRep_Level(int32 OldLevel)
 {
+	OnLevelChangedDelegate.Broadcast(Level);
+}
 
+void AWolfPlayerState::OnRep_XP(int32 OldXP)
+{
+	OnXPChangedDelegate.Broadcast(XP);
 }

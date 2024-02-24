@@ -5,6 +5,8 @@
 #include <AbilitySystem/BaseAttributeSet.h>
 #include <AbilitySystem/BaseAbilitySystemComponent.h>
 #include <AbilitySystem/Data/AbilityInfo.h>
+#include "AbilitySystem/Data/LevelUpInfo.h"
+#include <Player/WolfPlayerState.h>
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -20,6 +22,10 @@ void UOverlayWidgetController::BroadcastInitialValues()
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
+	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);  // in a packaged build this compiles as a static cast (+ optimization)
+	BasePlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+
+
 	const UBaseAttributeSet* BaseAttributeSet = CastChecked<UBaseAttributeSet>(AttributeSet);
 
 	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
@@ -124,6 +130,30 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UBaseAbilitySystemCo
 	});
 	BaseAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
 
+}
+
+void UOverlayWidgetController::OnXPChanged(int32 NewXP) const
+{
+	const AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);
+	const ULevelUpInfo* LevelUpInfo = BasePlayerState->LevelUpInfo;
+	checkf(LevelUpInfo, TEXT("Unable to find LevelUpInfo. Please fill out BasePlayerState Blueprint"));
+
+	const int32 Level = LevelUpInfo->FindLevelForXP(NewXP);
+	const int32 MaxLevel = LevelUpInfo->LevelUpInformation.Num();
+
+	if (Level <= MaxLevel && Level > 0)
+	{
+		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
+		const int32 PreviousLevelUpRequirement = LevelUpInfo->LevelUpInformation[Level - 1].LevelUpRequirement;
+
+		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;
+		const int32 XPForThisLevel = NewXP - PreviousLevelUpRequirement;
+
+		// we want to perform float division
+		const float XPBarPercent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaLevelRequirement);
+
+		OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
+	}
 }
 
 //void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const

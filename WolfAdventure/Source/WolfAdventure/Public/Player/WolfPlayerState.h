@@ -7,12 +7,15 @@
 #include "GameFramework/PlayerState.h"
 #include "WolfPlayerState.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /* StatValue */)
+
 /**
- * 
+ *  this class is replicated (clients & server have this class)
  */
 
 class UAbilitySystemComponent;
 class UAttributeSet;
+class ULevelUpInfo;
 
 UCLASS()
 class WOLFADVENTURE_API AWolfPlayerState : public APlayerState , public IAbilitySystemInterface
@@ -29,9 +32,22 @@ public:
 
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<ULevelUpInfo> LevelUpInfo;
+
+	FOnPlayerStatChanged OnXPChangedDelegate;
+	FOnPlayerStatChanged OnLevelChangedDelegate;
+
 
 	// forceInline = whenever we call this function, the preprocessor will replace the function call when preprocessing (before compilation step) with the function body (the Level variable) (the compiler has the say over whether it ends up doing it or not)   (minor performance optimization)
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
+	FORCEINLINE int32 GetXP() const { return XP; }
+
+	void AddToXP(int32 InXP);
+	void AddToLevel(int32 InLevel);
+
+	void SetXP(int32 InXP);
+	void SetLevel(int32 InLevel);
 
 protected: 
 
@@ -46,6 +62,14 @@ private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_Level)
 	int32 Level = 1;
 
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_XP)
+	int32 XP = 1;
+
+
+	// Rep notify for the client side
 	UFUNCTION()
 	void OnRep_Level(int32 OldLevel);
+
+	UFUNCTION()
+	void OnRep_XP(int32 OldXP);
 };

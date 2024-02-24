@@ -24,6 +24,8 @@ AWolfCharacter::AWolfCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	CharacterClass = ECharacterClass::Elementalist;
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
 

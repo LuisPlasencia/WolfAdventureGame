@@ -61,4 +61,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayMechanics")
 	static bool IsNotFriend(AActor* FirstActor, AActor* SecondActor);
 
+	// we need a world context object to access the game mode and get the data asset that links classes with experience points based on level
+	static int32 GetXPRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 CharacterLevel);
+
 };
