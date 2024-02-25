@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "CharacterType.h"
+#include "Interaction/PlayerInterface.h"
 #include "WolfCharacter.generated.h"
 
 
@@ -16,7 +17,7 @@ class UAnimMontage;
 class UBoxComponent;
 
 UCLASS()
-class WOLFADVENTURE_API AWolfCharacter : public ACharacterBase
+class WOLFADVENTURE_API AWolfCharacter : public ACharacterBase, public IPlayerInterface
 {
 	GENERATED_BODY()
 
@@ -26,6 +27,11 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+
+	/** Player interface */
+	virtual void AddToXP_Implementation(int32 InXP) override;
+	/** end Player interface */
+
 
 	/** Combat interface */
 	virtual int32 GetPlayerLevel() override;

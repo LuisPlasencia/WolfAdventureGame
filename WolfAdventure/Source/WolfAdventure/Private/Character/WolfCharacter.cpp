@@ -64,6 +64,13 @@ void AWolfCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+void AWolfCharacter::AddToXP_Implementation(int32 InXP)
+{
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	WolfPlayerState->AddToXP(InXP);
+}
+
 int32 AWolfCharacter::GetPlayerLevel()
 {
 	const AWolfPlayerState * WolfPlayerState = GetPlayerState<AWolfPlayerState>();

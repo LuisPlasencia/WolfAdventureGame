@@ -180,7 +180,7 @@ void ACharacterBase::AddCharacterAbilities()
 	if (!HasAuthority()) return;
 
 	BaseASC->AddCharacterAbilities(StartupAbilities);
-
+	BaseASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 
 }
 

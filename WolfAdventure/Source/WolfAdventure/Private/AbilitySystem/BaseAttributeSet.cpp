@@ -8,8 +8,10 @@
 #include <Net/UnrealNetwork.h>
 #include "BaseGameplayTags.h"
 #include <Interaction/CombatInterface.h>
+#include "Interaction/PlayerInterface.h"
 #include <Kismet/GameplayStatics.h>
 #include <Player/WolfPlayerController.h>
+#include "WolfAdventure/BaseLogChannels.h"
 #include <AbilitySystem/BaseAbilitySystemLibrary.h>
 
 UBaseAttributeSet::UBaseAttributeSet()
@@ -154,7 +156,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Health: %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
+		// UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s, Health: %f"), *Props.TargetAvatarActor->GetName(), GetHealth());
 	}
 
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
@@ -165,6 +167,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	// damage calculation (IncomingDamage is a meta attribute, it is NOT replicated on clients (only set on the server) so this if statement is only relevant for the server)
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
+		// with incoming meta attributes, the practice is to store that meta attribute locally and then set its value to 0 do what we want with the value
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f);
 		if (LocalIncomingDamage > 0.f)
@@ -182,6 +185,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				{
 					CombatInterface->Die();
 				}
+				SendXPEvent(Props);
 			}
 			else
 			{
@@ -198,6 +202,41 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		}
 	}
 
+	// another meta attribute
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		const float LocalIncomingXP = GetIncomingXP();
+		SetIncomingXP(0.f);
+	//	UE_LOG(LogBase, Log, TEXT("Incoming XP: %f"), LocalIncomingXP);
+
+		// See if we should level up
+		if (Props.SourceCharacter->Implements<UPlayerInterface>())
+		{
+			IPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
+		}
+
+	}
+
+}
+
+
+void UBaseAttributeSet::SendXPEvent(const FEffectProperties& Props)
+{
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetCharacter))
+	{
+		const int32 TargetLevel = CombatInterface->GetPlayerLevel();
+		const ECharacterClass TargetClass = ICombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
+		const int32 XPReward = UBaseAbilitySystemLibrary::GetXPRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
+		
+
+		const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
+		FGameplayEventData Payload;
+		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP;
+		Payload.EventMagnitude = XPReward;
+
+		// the source character is the one causing damage (the one that needs the xp reward that we get from the target character that got slain)
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceCharacter, GameplayTags.Attributes_Meta_IncomingXP, Payload);
+	}
 }
 
 void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit) const
@@ -223,6 +262,7 @@ void UBaseAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 		}
 	}
 }
+
 
 void UBaseAttributeSet::OnRep_Health(const FGameplayAttributeData OldHealth) const
 
