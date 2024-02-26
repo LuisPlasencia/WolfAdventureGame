@@ -37,14 +37,20 @@ public:
 
 	FOnPlayerStatChanged OnXPChangedDelegate;
 	FOnPlayerStatChanged OnLevelChangedDelegate;
+	FOnPlayerStatChanged OnAttributePointsChangedDelegate;
+	FOnPlayerStatChanged OnSpellPointsChangedDelegate;
 
 
 	// forceInline = whenever we call this function, the preprocessor will replace the function call when preprocessing (before compilation step) with the function body (the Level variable) (the compiler has the say over whether it ends up doing it or not)   (minor performance optimization)
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
 	FORCEINLINE int32 GetXP() const { return XP; }
+	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
+	FORCEINLINE int32 GetSpellPoints() const { return SpellPoints; }
 
 	void AddToXP(int32 InXP);
 	void AddToLevel(int32 InLevel);
+	void AddToAttributePoints(int32 InAttributePoints);
+	void AddToSpellPoints(int32 InSpellPoints);
 
 	void SetXP(int32 InXP);
 	void SetLevel(int32 InLevel);
@@ -65,10 +71,22 @@ private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_XP)
 	int32 XP = 1;
 
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_AttributePoints)
+	int32 AttributePoints = 0;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_SpellPoints)
+	int32 SpellPoints = 0;
+
 
 	// Rep notify for the client side
 	UFUNCTION()
 	void OnRep_Level(int32 OldLevel);
+
+	UFUNCTION()
+		void OnRep_AttributePoints(int32 OldAttributePoints);
+
+	UFUNCTION()
+		void OnRep_SpellPoints(int32 OlddSpellPoints);
 
 	UFUNCTION()
 	void OnRep_XP(int32 OldXP);

@@ -35,6 +35,13 @@ public:
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
+	// when out widget controller calls this function we may be on a client or on the server, we want to make sure that if we are on the client, we send an RPC up to the server so it knows
+	void UpgradeAttribute(const FGameplayTag& AttributeTag);
+
+	// server RPC so that clients can inform the server that the user has pressed the button and changed the attribute points
+	UFUNCTION(Server, Reliable)
+	void ServerUpgradeAttribute(const FGameplayTag& AttributeTag);
+
 protected:
 
 	virtual void OnRep_ActivateAbilities() override;

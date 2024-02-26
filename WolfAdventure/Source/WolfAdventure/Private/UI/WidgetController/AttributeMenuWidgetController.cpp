@@ -4,6 +4,8 @@
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include <AbilitySystem/BaseAttributeSet.h>
 #include "AbilitySystem/Data/AttributeInfo.h"
+#include <Player/WolfPlayerState.h>
+#include <AbilitySystem/BaseAbilitySystemComponent.h>
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
@@ -22,8 +24,17 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 		);
 	}
 
+	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);
+	BasePlayerState->OnAttributePointsChangedDelegate.AddLambda(
+		[this](int32 Points)
+		{
+			AttributePointsChangedDelegate.Broadcast(Points);
+		}
+	);
+
 }
 
+// this widget is created each time we press the attribute button and it needs to know its initial values based on the player state or the attribute set and so on
 void UAttributeMenuWidgetController::BroadcastInitialValues()
 {
 	UBaseAttributeSet* AS = CastChecked<UBaseAttributeSet>(AttributeSet);
@@ -34,6 +45,9 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 		// doesnt need to know what attributes there are so it is cleaner than the even less ideal way (more generic and automated widget controller)
 		BroadcastAttributeInfo(Pair.Key, Pair.Value());
 	}
+
+	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);
+	AttributePointsChangedDelegate.Broadcast(BasePlayerState->GetAttributePoints());
 
 
 	// Less ideal way
@@ -49,6 +63,12 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	//FBaseAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(FBaseGameplayTags::Get().Attributes_Primary_Strength);
 	//Info.AttributeValue = AS->GetStrength();
 	//AttributeInfoDelegate.Broadcast(Info);
+}
+
+void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	UBaseAbilitySystemComponent* BaseASC = CastChecked<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+	BaseASC->UpgradeAttribute(AttributeTag);
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const

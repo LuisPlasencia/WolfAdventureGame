@@ -34,13 +34,13 @@ AWolfCharacter::AWolfCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
 	CameraBoom->TargetArmLength = 600.f;
-	CameraBoom->bUsePawnControlRotation = false;
+	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->bDoCollisionTest = false;
 	CameraBoom->SetUsingAbsoluteRotation(true);
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
-	ViewCamera->bUsePawnControlRotation = false;
+	ViewCamera->bUsePawnControlRotation = true;
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteBox"));
 	BoxComponent->AddRelativeRotation(FRotator(44,50,2));
@@ -134,10 +134,30 @@ void AWolfCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
 
 void AWolfCharacter::AddToAttributePoints_Implementation(int32 InAttributePoints)
 {
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	WolfPlayerState->AddToAttributePoints(InAttributePoints);
 }
 
 void AWolfCharacter::AddToSpellPoints_Implementation(int32 InSpellPoints)
 {
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	WolfPlayerState->AddToSpellPoints(InSpellPoints);
+}
+
+int32 AWolfCharacter::GetAttributePoints_Implementation() const
+{
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->GetAttributePoints();
+}
+
+int32 AWolfCharacter::GetSpellPoints_Implementation() const
+{
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->GetSpellPoints();
 }
 
 int32 AWolfCharacter::GetPlayerLevel_Implementation()

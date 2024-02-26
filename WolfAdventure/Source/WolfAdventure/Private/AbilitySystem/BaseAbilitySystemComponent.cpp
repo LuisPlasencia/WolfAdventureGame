@@ -5,6 +5,8 @@
 #include "BaseGameplayTags.h"
 #include "WolfAdventure/BaseLogChannels.h"
 #include <AbilitySystem/Abilities/BaseGameplayAbility.h>
+#include <Interaction/PlayerInterface.h>
+#include <AbilitySystemBlueprintLibrary.h>
 
 void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -127,6 +129,33 @@ FGameplayTag UBaseAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbi
 		}
 	}
 	return FGameplayTag();
+}
+
+void UBaseAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	// we dont want to make the ASC dependant on the playerstate so we use an interface 
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		if (IPlayerInterface::Execute_GetAttributePoints(GetAvatarActor()) > 0)
+		{
+			ServerUpgradeAttribute(AttributeTag);
+		}
+	}
+}
+
+void UBaseAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
+{
+	// we send an event. A gameplay ability will listen for an event with this tag and apply a gameplay affect using information in that event
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = 1.f;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag, Payload);
+	
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_AddToAttributePoints(GetAvatarActor(), -1);
+	}
 }
 
 void UBaseAbilitySystemComponent::OnRep_ActivateAbilities()

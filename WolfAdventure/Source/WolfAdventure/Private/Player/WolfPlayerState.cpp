@@ -23,6 +23,8 @@ void AWolfPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(AWolfPlayerState, Level);
 	DOREPLIFETIME(AWolfPlayerState, XP);
+	DOREPLIFETIME(AWolfPlayerState, AttributePoints);
+	DOREPLIFETIME(AWolfPlayerState, SpellPoints);
 }
 
 UAbilitySystemComponent* AWolfPlayerState::GetAbilitySystemComponent() const
@@ -42,6 +44,18 @@ void AWolfPlayerState::AddToLevel(int32 InLevel)
 	OnLevelChangedDelegate.Broadcast(Level);
 }
 
+void AWolfPlayerState::AddToAttributePoints(int32 InAttributePoints)
+{
+	AttributePoints += InAttributePoints;
+	OnAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void AWolfPlayerState::AddToSpellPoints(int32 InSpellPoints)
+{
+	SpellPoints += InSpellPoints;
+	OnSpellPointsChangedDelegate.Broadcast(SpellPoints);
+}
+
 void AWolfPlayerState::SetXP(int32 InXP)
 {
 	XP = InXP;
@@ -57,6 +71,16 @@ void AWolfPlayerState::SetLevel(int32 InLevel)
 void AWolfPlayerState::OnRep_Level(int32 OldLevel)
 {
 	OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void AWolfPlayerState::OnRep_AttributePoints(int32 OldAttributePoints)
+{
+	OnAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void AWolfPlayerState::OnRep_SpellPoints(int32 OlddSpellPoints)
+{
+	OnSpellPointsChangedDelegate.Broadcast(SpellPoints);
 }
 
 void AWolfPlayerState::OnRep_XP(int32 OldXP)
