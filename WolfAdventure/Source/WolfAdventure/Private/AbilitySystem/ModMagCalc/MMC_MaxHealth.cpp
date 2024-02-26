@@ -33,8 +33,14 @@ float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffec
 	// we clamp the captured value (no negative values)
 	Vigor = FMath::Max<float>(Vigor, 0.f);
 
-	ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 PlayerLevel = CombatInterface->GetPlayerLevel();
+	int32 PlayerLevel = 1;
+	// for implements we use the U version instead of the I version of the interface
+	if (Spec.GetContext().GetSourceObject()->Implements<UCombatInterface>())
+	{
+		// when we call the static execute version of the function we use the I version of the interface
+		// since the execute version is static, it needs to know which object we are calling it on
+		PlayerLevel = ICombatInterface::Execute_GetPlayerLevel(Spec.GetContext().GetSourceObject());
+	}
 
 	// we return the custom calculation that we want for our modifier, in this case it depends on the player level as well as the vigor points
 	return 80.f + 2.5f * Vigor + 10.f * PlayerLevel;

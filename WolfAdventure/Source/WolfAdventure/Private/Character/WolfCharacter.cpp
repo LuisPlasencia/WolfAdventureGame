@@ -13,6 +13,8 @@
 #include <Player/WolfPlayerController.h>
 #include <UI/HUD/BaseHUD.h>
 #include <AbilitySystem/BaseAbilitySystemComponent.h>
+#include "NiagaraComponent.h"
+#include <AbilitySystem/Data/LevelUpInfo.h>
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -32,10 +34,13 @@ AWolfCharacter::AWolfCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
 	CameraBoom->TargetArmLength = 600.f;
-	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->bUsePawnControlRotation = false;
+	CameraBoom->bDoCollisionTest = false;
+	CameraBoom->SetUsingAbsoluteRotation(true);
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
+	ViewCamera->bUsePawnControlRotation = false;
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteBox"));
 	BoxComponent->AddRelativeRotation(FRotator(44,50,2));
@@ -45,6 +50,10 @@ AWolfCharacter::AWolfCharacter()
 	BoxComponent->SetCollisionProfileName("OverlapAllDynamics");
 
 	BoxComponent->SetupAttachment(GetRootComponent());
+
+	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
+	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
+	LevelUpNiagaraComponent->bAutoActivate = false;
 }
 
 void AWolfCharacter::PossessedBy(AController* NewController)
@@ -71,7 +80,67 @@ void AWolfCharacter::AddToXP_Implementation(int32 InXP)
 	WolfPlayerState->AddToXP(InXP);
 }
 
-int32 AWolfCharacter::GetPlayerLevel()
+void AWolfCharacter::LevelUp_Implementation()
+{
+	MulticastLevelUpParticles();
+}
+
+void AWolfCharacter::MulticastLevelUpParticles_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		const FVector CameraLocation = ViewCamera->GetComponentLocation();
+		const FVector NiagaraSystemLocation = LevelUpNiagaraComponent->GetComponentLocation();
+		const FRotator ToCameraRotation = (CameraLocation - NiagaraSystemLocation).Rotation();
+		LevelUpNiagaraComponent->SetWorldRotation(ToCameraRotation);
+		LevelUpNiagaraComponent->Activate(true);
+	}
+}
+
+int32 AWolfCharacter::GetXP_Implementation() const
+{
+	const AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->GetXP();
+}
+
+int32 AWolfCharacter::FindLevelForXP_Implementation(int32 InXP) const
+{
+	const AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->LevelUpInfo->FindLevelForXP(InXP);
+}
+
+int32 AWolfCharacter::GetAttributePointsReward_Implementation(int32 Level) const
+{
+	const AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->LevelUpInfo->LevelUpInformation[Level].AttributePointAward;
+}
+
+int32 AWolfCharacter::GetSpellPointsReward_Implementation(int32 Level) const
+{
+	const AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	return WolfPlayerState->LevelUpInfo->LevelUpInformation[Level].SpellPointAward;
+}
+
+void AWolfCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
+{
+	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
+	check(WolfPlayerState);
+	WolfPlayerState->AddToLevel(InPlayerLevel);
+}
+
+void AWolfCharacter::AddToAttributePoints_Implementation(int32 InAttributePoints)
+{
+}
+
+void AWolfCharacter::AddToSpellPoints_Implementation(int32 InSpellPoints)
+{
+}
+
+int32 AWolfCharacter::GetPlayerLevel_Implementation()
 {
 	const AWolfPlayerState * WolfPlayerState = GetPlayerState<AWolfPlayerState>();
 	check(WolfPlayerState);
@@ -100,6 +169,7 @@ void AWolfCharacter::InitAbilityActorInfo()
 	// only needs to be done in the server since the attributes will be replicated to the clients (but can be done in both client and server so the client doesnt have to wait for the server to replicate them back down)
 	InitializeDefaultAttributes();
 }
+
 
 // Called when the game starts or when spawned
 void AWolfCharacter::BeginPlay()

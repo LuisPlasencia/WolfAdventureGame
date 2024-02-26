@@ -209,9 +209,39 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		SetIncomingXP(0.f);
 	//	UE_LOG(LogBase, Log, TEXT("Incoming XP: %f"), LocalIncomingXP);
 
-		// See if we should level up
-		if (Props.SourceCharacter->Implements<UPlayerInterface>())
+		
+
+		// Source Character is the owner, since GA_ListenForEvents applies GE_EventBasedEffect, adding to IncomingXP
+		// BaseAttributeSet does not depend on the player state! We dont want circular dependencies, the player state already depends on the baseattributeset thats why we get level and xp through the use of an interface
+		if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
 		{
+			// See if we should level up
+			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
+			const int32 NumOfLevelUps = NewLevel - CurrentLevel;
+
+			if (NumOfLevelUps > 0)
+			{
+				// Get AttributePointsReward and SpellPointReward
+				const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
+				const int32 SpellPointsRewardReward = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+
+				// Add to Player Level
+				IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumOfLevelUps);
+
+				// Add to AttributePoints and Spellpoints
+				IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
+				IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsRewardReward);
+				
+				// Fill up Health and Mana
+				SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());
+
+				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+			}
+
 			IPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
 		}
 
@@ -222,9 +252,9 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 void UBaseAttributeSet::SendXPEvent(const FEffectProperties& Props)
 {
-	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetCharacter))
+	if (Props.TargetCharacter->Implements<UCombatInterface>())
 	{
-		const int32 TargetLevel = CombatInterface->GetPlayerLevel();
+		const int32 TargetLevel = ICombatInterface::Execute_GetPlayerLevel(Props.TargetCharacter);
 		const ECharacterClass TargetClass = ICombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
 		const int32 XPReward = UBaseAbilitySystemLibrary::GetXPRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
 		

@@ -24,7 +24,12 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);  // in a packaged build this compiles as a static cast (+ optimization)
 	BasePlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
-
+	BasePlayerState->OnLevelChangedDelegate.AddLambda(
+		[this](int32 NewLevel)
+		{
+			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+		}
+	);
 
 	const UBaseAttributeSet* BaseAttributeSet = CastChecked<UBaseAttributeSet>(AttributeSet);
 

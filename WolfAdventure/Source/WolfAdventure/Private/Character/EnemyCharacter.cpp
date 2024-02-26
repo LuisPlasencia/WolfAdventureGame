@@ -144,7 +144,7 @@ void AEnemyCharacter::UnHighlightActor()
 
 }
 
-int32 AEnemyCharacter::GetPlayerLevel()
+int32 AEnemyCharacter::GetPlayerLevel_Implementation()
 {
 	return Level;
 }
