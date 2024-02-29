@@ -11,6 +11,9 @@
 class UOverlayWidgetController;
 class UAttributeMenuWidgetController;
 class UAbilitySystemComponent;
+class USpellMenuWidgetController;
+// if we were to return a FWidgetControllerParams copy and not a reference or a pointer, we would need to include its header but in this case we can forward declare it 
+struct FWidgetControllerParams;
 /**
  * 
  */
@@ -24,12 +27,18 @@ class WOLFADVENTURE_API UBaseAbilitySystemLibrary : public UBlueprintFunctionLib
 	GENERATED_BODY()
 	
 public:
-	// blueprint pure since it doesnt change anything
-	UFUNCTION(BlueprintPure, Category="BaseAbilitySystemLibrary|WidgetController")
+	// blueprint pure since it doesnt change anything.. Default to self sets the variable named "WorldContextObject" to self 
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
+	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, ABaseHUD*& OutBaseHUD); // this a pointer passed in by reference
+
+	UFUNCTION(BlueprintPure, Category="BaseAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject);
 
-	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|WidgetController")
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
+	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC);

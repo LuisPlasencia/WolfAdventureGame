@@ -9,10 +9,9 @@
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
-	UBaseAttributeSet* AS = CastChecked<UBaseAttributeSet>(AttributeSet);
 	check(AttributeInfo);
 
-	for (auto& Pair : AS->TagsToAttributes)
+	for (auto& Pair : GetBaseAS()->TagsToAttributes)
 	{
 		// we dont wanna capture Pair by reference because by the time the attribute changes and the delegate gets broadcast the Pair variable (local in for loop) would have gone out of scope so we capture by value instead (copy stored)
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
@@ -24,8 +23,7 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 		);
 	}
 
-	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);
-	BasePlayerState->OnAttributePointsChangedDelegate.AddLambda(
+	GetWolfPS()->OnAttributePointsChangedDelegate.AddLambda(
 		[this](int32 Points)
 		{
 			AttributePointsChangedDelegate.Broadcast(Points);
@@ -46,8 +44,7 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 		BroadcastAttributeInfo(Pair.Key, Pair.Value());
 	}
 
-	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);
-	AttributePointsChangedDelegate.Broadcast(BasePlayerState->GetAttributePoints());
+	AttributePointsChangedDelegate.Broadcast(GetWolfPS()->GetAttributePoints());
 
 
 	// Less ideal way

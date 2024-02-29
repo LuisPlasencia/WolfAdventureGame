@@ -10,28 +10,27 @@
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
-	const UBaseAttributeSet* BaseAttributeSet = CastChecked<UBaseAttributeSet>(AttributeSet);  // unreal checks for us (abort program if null)
+	//const UBaseAttributeSet* BaseAttributeSet = CastChecked<UBaseAttributeSet>(AttributeSet);  // unreal checks for us (abort program if null)
 
-	OnHealthChanged.Broadcast(BaseAttributeSet->GetHealth());
-	OnMaxHealthChanged.Broadcast(BaseAttributeSet->GetMaxHealth());
-	OnManaChanged.Broadcast(BaseAttributeSet->GetMana());
-	OnMaxManaChanged.Broadcast(BaseAttributeSet->GetMaxMana());
+	OnHealthChanged.Broadcast(GetBaseAS()->GetHealth());
+	OnMaxHealthChanged.Broadcast(GetBaseAS()->GetMaxHealth());
+	OnManaChanged.Broadcast(GetBaseAS()->GetMana());
+	OnMaxManaChanged.Broadcast(GetBaseAS()->GetMaxMana());
 
 }
 
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);  // in a packaged build this compiles as a static cast (+ optimization)
-	BasePlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
-	BasePlayerState->OnLevelChangedDelegate.AddLambda(
+	//AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);  // in a packaged build this compiles as a static cast (+ optimization)
+
+	GetWolfPS()->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+	GetWolfPS()->OnLevelChangedDelegate.AddLambda(
 		[this](int32 NewLevel)
 		{
 			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
 		}
 	);
-
-	const UBaseAttributeSet* BaseAttributeSet = CastChecked<UBaseAttributeSet>(AttributeSet);
 
 	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 	//	BaseAttributeSet->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged); // adduobject and not adddynamic because its not a dynamic delegate (we bind the callback function to the delegate)
@@ -46,7 +45,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	//	BaseAttributeSet->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetHealthAttribute()).AddLambda(
+		GetBaseAS()->GetHealthAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnHealthChanged.Broadcast(Data.NewValue);
@@ -54,7 +53,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetMaxHealthAttribute()).AddLambda(
+		GetBaseAS()->GetMaxHealthAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnMaxHealthChanged.Broadcast(Data.NewValue);
@@ -62,7 +61,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetManaAttribute()).AddLambda(
+		GetBaseAS()->GetManaAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnManaChanged.Broadcast(Data.NewValue);
@@ -70,28 +69,28 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		BaseAttributeSet->GetMaxManaAttribute()).AddLambda(
+		GetBaseAS()->GetMaxManaAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnMaxManaChanged.Broadcast(Data.NewValue);
 			}
 	);
 
-	if (UBaseAbilitySystemComponent* BaseASC = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent))
+	if (GetBaseASC())
 	{
 		// abilities may have been given prior to us binding to the callback (race condition), so we check for that case
-		if (BaseASC->bStartupAbilitiesGiven)
+		if (GetBaseASC()->bStartupAbilitiesGiven)
 		{
-			OnInitializeStartupAbilities(BaseASC);
+			BroadcastAbilityInfo();
 		}
 		else
 		{
-			BaseASC->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+			GetBaseASC()->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::BroadcastAbilityInfo);
 		}
 
 
 		// Binding a lambda (anonymous function) saves us the trouble of declaring callback member functions for all the delegates that we want to bind to (+simplicity)
-		BaseASC->EffectAssetTags.AddLambda(
+		GetBaseASC()->EffectAssetTags.AddLambda(
 			[this](const FGameplayTagContainer& AssetTags)
 			{
 				for (const FGameplayTag& Tag : AssetTags)  // a reference so we dont copy the tag (+efficiency)
@@ -119,28 +118,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 }
 
-void UOverlayWidgetController::OnInitializeStartupAbilities(UBaseAbilitySystemComponent* BaseAbilitySystemComponent)
+void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 {
-	// Get Information about all given abilities, look up their Ability Info, and broadcast it to widgets
-	if (!BaseAbilitySystemComponent->bStartupAbilitiesGiven) return;
-
-	FForEachAbility BroadcastDelegate;
-	BroadcastDelegate.BindLambda([this, BaseAbilitySystemComponent](const FGameplayAbilitySpec& AbilitySpec)
-	{
-		// we need a way to figure out the ability tag for a given ability spec
-		FBaseAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(BaseAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
-		// the input tag is set by code, not in the blueprint data asset, thats why we need to retrieve it
-		Info.InputTag = BaseAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
-		AbilityInfoDelegate.Broadcast(Info);
-	});
-	BaseAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
-
-}
-
-void UOverlayWidgetController::OnXPChanged(int32 NewXP) const
-{
-	const AWolfPlayerState* BasePlayerState = CastChecked<AWolfPlayerState>(PlayerState);
-	const ULevelUpInfo* LevelUpInfo = BasePlayerState->LevelUpInfo;
+	const ULevelUpInfo* LevelUpInfo = GetWolfPS()->LevelUpInfo;
 	checkf(LevelUpInfo, TEXT("Unable to find LevelUpInfo. Please fill out BasePlayerState Blueprint"));
 
 	const int32 Level = LevelUpInfo->FindLevelForXP(NewXP);

@@ -31,13 +31,11 @@ struct FUIWidgetRow : public FTableRowBase
 // dynamic delegates can be serialized, theyre the slowest delegates, only use when needed (and we need them here in order to be assignable in blueprint)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);  // dynamic multicast delegate that broadcasts a float (delegate type)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FBaseAbilityInfo&, Info);
 
 
 
 struct FOnAttributeChangeData;
 class UBaseUserWidget;
-class UAbilityInfo;
 class UBaseAbilitySystemComponent;
 
 /**
@@ -67,9 +65,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
-	FAbilityInfoSignature AbilityInfoDelegate;
-
 	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
 	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
 
@@ -82,9 +77,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
-	TObjectPtr<UAbilityInfo> AbilityInfo;
-
 	// We do this with lambdas instead of callback functions now since they just do simple stuff
 	//void HealthChanged(const FOnAttributeChangeData& Data) const; // needs this signature (return + params) in order to be binded as a callback to the delegates in the ASC
 	//void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
@@ -94,9 +86,7 @@ protected:
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag); // able to return any type of data table row (T is the Type in the template function)
 
-	void OnInitializeStartupAbilities(UBaseAbilitySystemComponent* BaseAbilitySystemComponent);
-
-	void OnXPChanged(int32 NewXP) const;
+	void OnXPChanged(int32 NewXP);
 };
 
 

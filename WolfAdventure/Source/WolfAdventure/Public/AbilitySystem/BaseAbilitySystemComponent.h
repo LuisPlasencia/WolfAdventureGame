@@ -7,7 +7,7 @@
 #include "BaseAbilitySystemComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /* AssetTags */);  // not dynamic since our widgets are not going to bind to this delegate but the widget controller (no need for blueprint so no need for addDynamic)
-DECLARE_MULTICAST_DELEGATE_OneParam(FAbilitiesGiven, UBaseAbilitySystemComponent*); // multicast lets us bind from multiple different classes (just in case), in this case we want the widget controller to pick it up whenever we give our abilities
+DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven); // multicast lets us bind from multiple different classes (just in case), in this case we want the widget controller to pick it up whenever we give our abilities
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);  // we dont need it to be dynamic or multicast since we are just going to use it in c++ in one class 
 
 /**
@@ -34,6 +34,7 @@ public:
 
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
+	static FGameplayTag GetStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
 	// when out widget controller calls this function we may be on a client or on the server, we want to make sure that if we are on the client, we send an RPC up to the server so it knows
 	void UpgradeAttribute(const FGameplayTag& AttributeTag);

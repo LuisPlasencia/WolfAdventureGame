@@ -30,6 +30,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 			// dynamic ability tags are designed to be added and removed at RUNTIME
 			// specific to the player controlled character, enemies dont need to care about their input tag
 			AbilitySpec.DynamicAbilityTags.AddTag(BaseAbility->StartupInputTag);
+			AbilitySpec.DynamicAbilityTags.AddTag(FBaseGameplayTags::Get().Abilities_Status_Equipped);
 			// give ability can accept const abilitySpec but giveabilityandactivateonce only accepts non-const
 			//GiveAbilityAndActivateOnce(AbilitySpec);
 			GiveAbility(AbilitySpec);
@@ -38,7 +39,7 @@ void UBaseAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 	// remember that this is only called on the server. For the client side, the OnRep_ActivateAbilities() virtual RPC (remote procedure call - virtual rep notify) function will get called and we will broadcast there for the clients
 	// the abilitysystemcomponent Activatable abilities container replicates (replicated variable) using OnRep_ActivateAbilities once we call giveAbility aka the container changes
 	bStartupAbilitiesGiven = true;
-	AbilitiesGivenDelegate.Broadcast(this);
+	AbilitiesGivenDelegate.Broadcast();
 }
 
 void UBaseAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities)
@@ -131,6 +132,18 @@ FGameplayTag UBaseAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbi
 	return FGameplayTag();
 }
 
+FGameplayTag UBaseAbilitySystemComponent::GetStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag StatusTag : AbilitySpec.DynamicAbilityTags)
+	{
+		if (StatusTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities.Status"))))
+		{
+			return StatusTag;
+		}
+	}
+	return FGameplayTag();
+}
+
 void UBaseAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
 	// we dont want to make the ASC dependant on the playerstate so we use an interface 
@@ -165,7 +178,7 @@ void UBaseAbilitySystemComponent::OnRep_ActivateAbilities()
 	if (!bStartupAbilitiesGiven)
 	{
 		bStartupAbilitiesGiven = true;
-		AbilitiesGivenDelegate.Broadcast(this);
+		AbilitiesGivenDelegate.Broadcast();
 	}
 
 }

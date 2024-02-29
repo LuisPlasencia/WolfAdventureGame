@@ -11,34 +11,55 @@
 #include <BaseAbilityTypes.h>
 #include <Interaction/CombatInterface.h>
 
-UOverlayWidgetController* UBaseAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
+bool UBaseAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParamms, ABaseHUD*& OutBaseHUD)
 {
 	if (APlayerController* PC = WorldContextObject->GetWorld()->GetFirstPlayerController())
 	{
-		if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(PC->GetHUD()))
+		OutBaseHUD = Cast<ABaseHUD>(PC->GetHUD());
+		if (OutBaseHUD)
 		{
 			AWolfPlayerState* PS = PC->GetPlayerState<AWolfPlayerState>(); 	// it takes an input template parameter
 			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 			UAttributeSet* AS = PS->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return BaseHUD->GetOverlayWidgetController(WidgetControllerParams);
+			OutWCParamms.AttributeSet = AS;
+			OutWCParamms.AbilitySystemComponent = ASC;
+			OutWCParamms.PlayerState = PS;
+			OutWCParamms.PlayerController = PC;
+			return true;
 		}
+	}
+	return false;
+}
+
+UOverlayWidgetController* UBaseAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	ABaseHUD* BaseHUD = nullptr;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, BaseHUD))
+	{
+		return BaseHUD->GetOverlayWidgetController(WCParams);
 	}
 	return nullptr;
 }
 
 UAttributeMenuWidgetController* UBaseAbilitySystemLibrary::GetAttributeMenuWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PC = WorldContextObject->GetWorld()->GetFirstPlayerController())
+	FWidgetControllerParams WCParams;
+	ABaseHUD* BaseHUD = nullptr;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, BaseHUD))
 	{
-		if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(PC->GetHUD()))
-		{
-			AWolfPlayerState* PS = PC->GetPlayerState<AWolfPlayerState>(); 	// it takes an input template parameter
-			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
-			UAttributeSet* AS = PS->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return BaseHUD->GetAttributeMenuWidgetController(WidgetControllerParams);
-		}
+		return BaseHUD->GetAttributeMenuWidgetController(WCParams);
+	}
+	return nullptr;
+}
+
+USpellMenuWidgetController* UBaseAbilitySystemLibrary::GetSpellMenuWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	ABaseHUD* BaseHUD = nullptr;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, BaseHUD))
+	{
+		return BaseHUD->GetSpellMenuWidgetController(WCParams);
 	}
 	return nullptr;
 }
