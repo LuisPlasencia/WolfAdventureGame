@@ -130,6 +130,11 @@ void AWolfCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
 	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();
 	check(WolfPlayerState);
 	WolfPlayerState->AddToLevel(InPlayerLevel);
+
+	if (UBaseAbilitySystemComponent* BaseASC = Cast<UBaseAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		BaseASC->UpdateAbilityStatuses(WolfPlayerState->GetPlayerLevel());
+	}
 }
 
 void AWolfCharacter::AddToAttributePoints_Implementation(int32 InAttributePoints)

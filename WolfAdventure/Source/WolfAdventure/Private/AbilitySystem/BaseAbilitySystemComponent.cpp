@@ -7,6 +7,8 @@
 #include <AbilitySystem/Abilities/BaseGameplayAbility.h>
 #include <Interaction/PlayerInterface.h>
 #include <AbilitySystemBlueprintLibrary.h>
+#include "AbilitySystem/Data/AbilityInfo.h"
+#include <AbilitySystem/BaseAbilitySystemLibrary.h>
 
 void UBaseAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -144,6 +146,24 @@ FGameplayTag UBaseAbilitySystemComponent::GetStatusFromSpec(const FGameplayAbili
 	return FGameplayTag();
 }
 
+FGameplayAbilitySpec* UBaseAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	// we want a scope ability list lock so that we dont run into complications when abilites are added or removed or changed while we are looping over them
+	FScopedAbilityListLock ActiveScopeLoc(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(AbilityTag))
+			{
+				return &AbilitySpec;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 void UBaseAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
 	// we dont want to make the ASC dependant on the playerstate so we use an interface 
@@ -171,6 +191,27 @@ void UBaseAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FG
 	}
 }
 
+void UBaseAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
+{
+	UAbilityInfo* AbilityInfo = UBaseAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+
+	for (const FBaseAbilityInfo& Info : AbilityInfo->AbilityInformation)
+	{
+		if (!Info.AbilityTag.IsValid()) continue;
+		if (Level < Info.LevelRequirement) continue;
+		if (GetSpecFromAbilityTag(Info.AbilityTag) == nullptr)
+		{
+			// if we dont have the ability, we give the ability because we satisfy the level requirements
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Info.Ability, 1);
+			AbilitySpec.DynamicAbilityTags.AddTag(FBaseGameplayTags::Get().Abilities_Status_Eligible);
+			GiveAbility(AbilitySpec);
+			// we force it to replicate instead of  waiting for the next update (we need the clients to know the change right away)
+			MarkAbilitySpecDirty(AbilitySpec);
+			ClientUpdateAbilityStatus(Info.AbilityTag, FBaseGameplayTags::Get().Abilities_Status_Eligible);
+		}
+	}
+}
+
 void UBaseAbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
@@ -181,6 +222,11 @@ void UBaseAbilitySystemComponent::OnRep_ActivateAbilities()
 		AbilitiesGivenDelegate.Broadcast();
 	}
 
+}
+
+void UBaseAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+{
+	AbilityStatusChanged.Broadcast(AbilityTag, StatusTag);
 }
 
 void UBaseAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
