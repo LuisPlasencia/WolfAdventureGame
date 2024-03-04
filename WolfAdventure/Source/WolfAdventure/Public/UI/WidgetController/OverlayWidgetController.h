@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/WidgetController/BaseWidgetController.h"
-#include "GameplayTagContainer.h"
+#include "BaseGameplayTags.h"
 #include "OverlayWidgetController.generated.h"
 
 
@@ -87,6 +87,8 @@ protected:
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag); // able to return any type of data table row (T is the Type in the template function)
 
 	void OnXPChanged(int32 NewXP);
+
+	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const;
 };
 
 

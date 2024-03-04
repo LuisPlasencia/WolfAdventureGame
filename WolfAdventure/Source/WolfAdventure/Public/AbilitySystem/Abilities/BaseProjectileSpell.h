@@ -17,6 +17,7 @@ UCLASS()
 class WOLFADVENTURE_API UBaseProjectileSpell : public UBaseDamageGameplayAbility
 {
 	GENERATED_BODY()
+
 	
 protected:
 
@@ -28,4 +29,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ABaseProjectile> ProjectileClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	int32 NumProjectiles = 5;
 };
