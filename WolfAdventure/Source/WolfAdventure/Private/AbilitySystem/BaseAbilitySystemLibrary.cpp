@@ -10,6 +10,8 @@
 #include "AbilitySystemComponent.h"
 #include <BaseAbilityTypes.h>
 #include <Interaction/CombatInterface.h>
+#include "BaseGameplayTags.h"
+#include <AbilitySystemBlueprintLibrary.h>
 
 bool UBaseAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParamms, ABaseHUD*& OutBaseHUD)
 {
@@ -151,6 +153,55 @@ bool UBaseAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle&
 	return false;
 }
 
+bool UBaseAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get())) 
+	{
+		return BaseEffectContext->IsSuccessfulDebuff();
+	}
+	return false;
+}
+
+float UBaseAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->GetDebuffDamage();
+	}
+	return 0.f;
+}
+
+float UBaseAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->GetDebuffDuration();
+	}
+	return 0.f;
+}
+
+float UBaseAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->GetDebuffFrequency();
+	}
+	return 0.f;
+}
+
+FGameplayTag UBaseAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		if (BaseEffectContext->GetDamageType().IsValid())
+		{
+			// we dereference the pointer
+			return *BaseEffectContext->GetDamageType();
+		}
+	}
+	return FGameplayTag();
+}
+
 bool UBaseAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	// EffectContextHandle.Get returns a const since we are passing in a const parameter variable, if we are static castings we need to store the result in a const, if we want to store it in a non const we would have to const_cast to cast away the constness
@@ -207,5 +258,26 @@ bool UBaseAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondAc
 	const bool bBothAreEnemies = FirstActor->ActorHasTag(FName("Enemy")) && SecondActor->ActorHasTag(FName("Enemy"));
 	const bool bFriends = bBothAreEnemies || bBothArePlayers;
 	return !bFriends;
+}
+
+FGameplayEffectContextHandle UBaseAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams)
+{
+	const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
+	const AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
+
+	FGameplayEffectContextHandle EffectContextHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(SourceAvatarActor);
+	
+	FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.BaseDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Chance, DamageEffectParams.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Damage, DamageEffectParams.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, DamageEffectParams.DebuffDuration);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, DamageEffectParams.DebuffFrequency);
+	
+	DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data); // dereferencing the wrapper will also give you the dereferenced value inside of it (no need for Get())
+
+	return EffectContextHandle;
 }
 

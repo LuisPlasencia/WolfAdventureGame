@@ -2,11 +2,11 @@
 
 
 #include "AbilitySystem/Abilities/BaseFireBolt.h"
-#include "BaseGameplayTags.h"
 
 FString UBaseFireBolt::GetDescription(int32 Level)
 {
-	const int32 Damage = GetDamageByDamageType(Level, FBaseGameplayTags::Get().Damage_Fire);
+//	const int32 Damage = GetDamageByDamageType(Level, FBaseGameplayTags::Get().Damage_Fire);
+	const int32 ScaledDamage = Damage.GetValueAtLevel(Level);
 	const float ManaCost = FMath::Abs(GetManaCost(Level));
 	const float Cooldown = GetCooldown(Level);
 
@@ -35,7 +35,7 @@ FString UBaseFireBolt::GetDescription(int32 Level)
 			Level,
 			ManaCost,
 			Cooldown,
-			Damage);
+			ScaledDamage);
 	}
 	else
 	{
@@ -63,13 +63,13 @@ FString UBaseFireBolt::GetDescription(int32 Level)
 			ManaCost,
 			Cooldown,
 			FMath::Min(Level, NumProjectiles),
-			Damage);
+			ScaledDamage);
 	}
 }
 
 FString UBaseFireBolt::GetNextLevelDescription(int32 Level)
 {
-	const int32 Damage = GetDamageByDamageType(Level, FBaseGameplayTags::Get().Damage_Fire);
+	const int32 ScaledDamage = Damage.GetValueAtLevel(Level);
 	const float ManaCost = FMath::Abs(GetManaCost(Level));
 	const float Cooldown = GetCooldown(Level);
 
@@ -97,6 +97,6 @@ FString UBaseFireBolt::GetNextLevelDescription(int32 Level)
 		ManaCost,
 		Cooldown,
 		FMath::Min(Level, NumProjectiles),
-		Damage);
+		ScaledDamage);
 
 }

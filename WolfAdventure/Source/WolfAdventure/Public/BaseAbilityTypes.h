@@ -2,7 +2,51 @@
 #include "GameplayEffectTypes.h"
 #include "BaseAbilityTypes.generated.h"
 
+class UGameplayEffect;
 
+USTRUCT(BlueprintType)
+struct FDamageEffectParams
+{
+	GENERATED_BODY()
+
+	FDamageEffectParams() {}
+
+	// because we are passing this struct over to baseAbilitySystemLibrary we need a world context
+	UPROPERTY()
+	TObjectPtr<UObject> WorldContextObject = nullptr;
+
+	UPROPERTY()
+	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent;
+
+	UPROPERTY()
+	float BaseDamage = 0.f;
+
+	UPROPERTY()
+	float AbilityLevel = 1.f;
+
+	UPROPERTY()
+	FGameplayTag DamageType = FGameplayTag();
+
+	UPROPERTY()
+	float DebuffChance = 0.f;
+
+	UPROPERTY()
+	float DebuffDamage = 0.f;
+
+	UPROPERTY()
+	float DebuffDuration = 0.f;
+
+	UPROPERTY()
+	float DebuffFrequency = 0.f;
+};
+
+// the effect context lives with the gameplay effect and carries along information
 USTRUCT(BlueprintType)
 struct FBaseGameplayEffectContext : public FGameplayEffectContext
 {
@@ -12,11 +56,19 @@ struct FBaseGameplayEffectContext : public FGameplayEffectContext
 public:
 
 	bool IsCriticalHit() const { return bIsCriticalHit; }
-
 	bool IsBlockedHit() const { return bIsBlockedHit; }
+	bool IsSuccessfulDebuff() const { return bIsSuccessfulDebuff; };
+	float GetDebuffDamage() const { return DebuffDamage; };
+	float GetDebuffDuration() const { return DebuffDuration; }
+	float GetDebuffFrequency() const { return DebuffFrequency; }
+	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
+	void SetSuccessfulDebuff(bool bInIsDebuff) { bIsSuccessfulDebuff = bInIsDebuff; }
+	void SetDebuffDamage(float InDamage) { DebuffDamage = InDamage; }
+	void SetDebuffDuration(float InDuration) { DebuffDuration = InDuration; }
+	void SetDebuffFrequency(float InFrequency) { DebuffFrequency = InFrequency; }
 
 	// A UClass is generated for each class in the engine that's derived from UObject for the reflection system,
 	// structs also have a version of this called the ScriptStruct so when we create a struct that's capable of being exposed to the reflection system, a script struct is created for the reflection system
@@ -39,6 +91,7 @@ public:
 		return NewContext;
 	}
 
+	// NECESSARY FOR REPLICATION
 	// determines how the struct is serialized (serialization is necessary for saving structs or sending them across the network, it converts the function to binary)
 	// UPackageMap is a tool to help map objects to indices (when serializing all variables from the struct are converted to strings of ceros and ones (array of bits), and it helps to know when an object starts and the other begins with UPackageMap) 
 	// FArchive is a byte class that uses a byte order neutral way (big endian) and is capable of storing serialized data (<< operator overload in archive class (on the left hand sign what it returns and on the right hand side the parameter in the function))
@@ -58,6 +111,21 @@ protected:
 
 	UPROPERTY()
 	bool bIsCriticalHit = false;
+
+	UPROPERTY()
+	bool bIsSuccessfulDebuff = false;
+
+	UPROPERTY()
+	float DebuffDamage = 0.f;
+
+	UPROPERTY()
+	float DebuffDuration = 0.f;
+
+	UPROPERTY()
+	float DebuffFrequency = 0.f;
+
+	// garbage collection is not handled for shared pointers by UPROPERTY. Smart pointers like shared pointer handles the automatic memory management (this is why we skip uproperty here)
+	TSharedPtr<FGameplayTag> DamageType;
 };
 
 
