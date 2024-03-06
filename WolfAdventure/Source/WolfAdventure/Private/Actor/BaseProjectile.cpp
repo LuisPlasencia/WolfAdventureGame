@@ -89,6 +89,18 @@ void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 			//// we set this damage effect spec handle on projectile spawn in baseprojectilespell ability. It has a value associated with a level in the dataAsset as an scalablefloat
 			//TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 
+			const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
+			DamageEffectParams.DeathImpulse = DeathImpulse;
+			const bool bKnockback = FMath::RandRange(1, 100) < DamageEffectParams.KnockbackChance;
+			if (bKnockback)
+			{
+				// we want to give the knockback some pitch override so the enemy flies around a little bit (angled up, inclination)
+				FRotator Rotation = GetActorRotation();
+				Rotation.Pitch = 45.f;
+				const FVector KnockbackDirection = Rotation.Vector();  // GetActorForwardVector().RotateAngleAxis(45.f, GetActorRightVector()) = alternative with not-complete pitch override (we are adding)
+				const FVector KnockbackForce = KnockbackDirection * DamageEffectParams.KnockbackForceMagnitude;
+				DamageEffectParams.KnockbackForce = KnockbackForce;
+			}
 			DamageEffectParams.TargetAbilitySystemComponent = TargetASC;
 			UBaseAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);
 		}

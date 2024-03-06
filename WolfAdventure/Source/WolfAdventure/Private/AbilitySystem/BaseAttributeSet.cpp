@@ -13,6 +13,8 @@
 #include <Player/WolfPlayerController.h>
 #include "WolfAdventure/BaseLogChannels.h"
 #include <AbilitySystem/BaseAbilitySystemLibrary.h>
+#include <BaseAbilityTypes.h>
+#include <GameplayEffectComponents/TargetTagsGameplayEffectComponent.h>
 
 UBaseAttributeSet::UBaseAttributeSet()
 {
@@ -153,6 +155,11 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
+	if(Props.TargetCharacter->Implements<UCombatInterface>() && ICombatInterface::Execute_IsDead(Props.TargetCharacter))
+	{
+		return;
+	}
+
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
@@ -167,87 +174,161 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	// damage calculation (IncomingDamage is a meta attribute, it is NOT replicated on clients (only set on the server) so this if statement is only relevant for the server)
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		// with incoming meta attributes, the practice is to store that meta attribute locally and then set its value to 0 do what we want with the value
-		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f);
-		if (LocalIncomingDamage > 0.f)
-		{
-			// we do the substraction here
-			const float NewHealth = GetHealth() - LocalIncomingDamage;
-			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-			const bool bFatal = NewHealth <= 0.f;
-
-			if (bFatal)
-			{
-				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
-				if (CombatInterface)
-				{
-					CombatInterface->Die();
-				}
-				SendXPEvent(Props);
-			}
-			else
-			{
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FBaseGameplayTags::Get().Effects_HitReact);
-				// we are doing this on the server to the target of the effect
-				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-			}
-
-			const bool bBlock = UBaseAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
-			const bool bCriticalHit = UBaseAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
-			ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
-
-		}
+		HandleIncomingDamage(Props);
 	}
 
 	// another meta attribute
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
 	{
-		const float LocalIncomingXP = GetIncomingXP();
-		SetIncomingXP(0.f);
-	//	UE_LOG(LogBase, Log, TEXT("Incoming XP: %f"), LocalIncomingXP);
-
-		
-
-		// Source Character is the owner, since GA_ListenForEvents applies GE_EventBasedEffect, adding to IncomingXP
-		// BaseAttributeSet does not depend on the player state! We dont want circular dependencies, the player state already depends on the baseattributeset thats why we get level and xp through the use of an interface
-		if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
-		{
-			// See if we should level up
-			const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
-			const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
-
-			const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
-			const int32 NumOfLevelUps = NewLevel - CurrentLevel;
-
-			if (NumOfLevelUps > 0)
-			{
-				// Get AttributePointsReward and SpellPointReward
-				const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-				const int32 SpellPointsRewardReward = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
-
-				// Add to Player Level
-				IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumOfLevelUps);
-
-				// Add to AttributePoints and Spellpoints
-				IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
-				IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsRewardReward);
-				
-				// Fill up Health and Mana. Because level up attributes will change maxhealth and max mana, we will fill up health and mana bars on post attribute change
-				bTopOffHealth = true;
-				bTopOffMana = true;
-
-				IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
-			}
-
-			IPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
-		}
-
+		HandleIncomingXP(Props);
 	}
 
 }
+
+void UBaseAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
+{
+	// with incoming meta attributes, the practice is to store that meta attribute locally and then set its value to 0 do what we want with the value
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f);
+	if (LocalIncomingDamage > 0.f)
+	{
+		// we do the substraction here
+		const float NewHealth = GetHealth() - LocalIncomingDamage;
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+		const bool bFatal = NewHealth <= 0.f;
+
+		if (bFatal)
+		{
+			ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+			if (CombatInterface)
+			{
+				CombatInterface->Die(UBaseAbilitySystemLibrary::GetDeathImpulse(Props.EffectContextHandle)); // death impulse included
+			}
+			SendXPEvent(Props);
+		}
+		else
+		{
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(FBaseGameplayTags::Get().Effects_HitReact);
+			// we are doing this on the server to the target of the effect
+			// keep in mind that we dont want enemies to hit react while burning or debuffing so we add debuff blocked tags to the blueprint hit react gameplay ability 
+			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+
+			// handle knockback
+			const FVector& KnockbackForce = UBaseAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
+			if (!KnockbackForce.IsNearlyZero(1.f))
+			{
+				// LaunchCharacter instead of addImpulse because we can use LaunchCharacter without having to simulate physics and ragdoll the character
+				Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true); // we want to launch the character in XY and Z axis (true, true)
+			}
+		}
+
+		const bool bBlock = UBaseAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+		const bool bCriticalHit = UBaseAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+		ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
+		if (UBaseAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
+		{
+			// Handle Debuff
+			Debuff(Props);
+		}
+
+	}
+}
+
+void UBaseAttributeSet::Debuff(const FEffectProperties& Props)
+{
+	const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
+
+	// we create a c++ gameplay effect (dynamic gameplay effect) and apply it (not supported for replication - only doable on the server, any changes SHOULD be replicated and handled by the server)
+	// we need to create an effect context from the ASC to apply a gameplay effect
+	FGameplayEffectContextHandle EffectContext = Props.SourceASC->MakeEffectContext();
+	EffectContext.AddSourceObject(Props.SourceAvatarActor);
+
+	const FGameplayTag DamageType = UBaseAbilitySystemLibrary::GetDamageType(Props.EffectContextHandle);
+	const float DebuffDamage = UBaseAbilitySystemLibrary::GetDebuffDamage(Props.EffectContextHandle);
+	const float DebuffDuration = UBaseAbilitySystemLibrary::GetDebuffDuration(Props.EffectContextHandle);
+	const float DebuffFrequency = UBaseAbilitySystemLibrary::GetDebuffFrequency(Props.EffectContextHandle);
+
+	FString DebuffName = FString::Printf(TEXT("DynamicDebuff_%s"), *DamageType.ToString());
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
+
+	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	Effect->Period = DebuffFrequency;
+	Effect->DurationMagnitude = FScalableFloat(DebuffDuration); //fscalablefloat is a child class of FGameplayEffectModifierMagnitude (magnitude type)
+
+	// we want to know when a debuff has been applied to an actor by granting a debuff tag and then we can respond to it (play animation etc)
+	// Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	FInheritedTagContainer TagContainer = FInheritedTagContainer();
+	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
+	TagContainer.Added.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	TagContainer.CombinedTags.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	Component.SetAndApplyTargetTagChanges(TagContainer);
+
+	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
+	Effect->StackLimitCount = 1;
+
+	const int32 Index = Effect->Modifiers.Num();
+	Effect->Modifiers.Add(FGameplayModifierInfo());
+	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index];
+
+	ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage);
+	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+	ModifierInfo.Attribute = UBaseAttributeSet::GetIncomingDamageAttribute();
+
+	
+	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContext, 1.f))
+	{
+		FBaseGameplayEffectContext* BaseContext = static_cast<FBaseGameplayEffectContext*>(MutableSpec->GetContext().Get());  // EffectContext.Get() does the same since mutable spec has that context in it
+		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));  // makeshareable instead of makeshared because we are constructing a 'new' one (same thing)
+		BaseContext->SetDamageType(DebuffDamageType);
+
+		Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
+	}
+
+}
+
+void UBaseAttributeSet::HandleIncomingXP(const FEffectProperties& Props)
+{
+	const float LocalIncomingXP = GetIncomingXP();
+	SetIncomingXP(0.f);
+	//	UE_LOG(LogBase, Log, TEXT("Incoming XP: %f"), LocalIncomingXP);
+
+	// Source Character is the owner, since GA_ListenForEvents applies GE_EventBasedEffect, adding to IncomingXP
+	// BaseAttributeSet does not depend on the player state! We dont want circular dependencies, the player state already depends on the baseattributeset thats why we get level and xp through the use of an interface
+	if (Props.SourceCharacter->Implements<UPlayerInterface>() && Props.SourceCharacter->Implements<UCombatInterface>())
+	{
+		// See if we should level up
+		const int32 CurrentLevel = ICombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+		const int32 CurrentXP = IPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+		const int32 NewLevel = IPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
+		const int32 NumOfLevelUps = NewLevel - CurrentLevel;
+
+		if (NumOfLevelUps > 0)
+		{
+			// Get AttributePointsReward and SpellPointReward
+			const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
+			const int32 SpellPointsRewardReward = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+
+			// Add to Player Level
+			IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumOfLevelUps);
+
+			// Add to AttributePoints and Spellpoints
+			IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
+			IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsRewardReward);
+
+			// Fill up Health and Mana. Because level up attributes will change maxhealth and max mana, we will fill up health and mana bars on post attribute change
+			bTopOffHealth = true;
+			bTopOffMana = true;
+
+			IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+		}
+
+		IPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
+	}
+}
+
 
 void UBaseAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
@@ -411,3 +492,4 @@ void UBaseAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData Ol
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseAttributeSet, PhysicalResistance, OldPhysicalResistance);
 }
+

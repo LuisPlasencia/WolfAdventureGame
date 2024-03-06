@@ -15,6 +15,7 @@ class UGameplayEffect;
 class UGameplayAbility;
 class UAnimMontage;
 class UNiagaraSystem;
+class UDebuffNiagaraComponent;
 
 UCLASS(Abstract)  //prevents the class to be dragged into the level
 class WOLFADVENTURE_API ACharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -30,22 +31,26 @@ public:
 
 	/** Combat Interface  */
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	virtual void Die() override; 	// only on the server
+	virtual void Die(const FVector& DeathImpulse) override; 	// only on the server
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
-	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag);
-	virtual int32 GetMinionCount_Implementation();
-	virtual void IncrementMinionCount_Implementation(int32 Amount);
-	virtual ECharacterClass GetCharacterClass_Implementation();
+	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
+	virtual int32 GetMinionCount_Implementation() override;
+	virtual void IncrementMinionCount_Implementation(int32 Amount) override;
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
+	virtual FOnDeath GetOnDeathDelegate() override;
 	/** end Combat Interface  */
 
+	FOnASCRegistered OnAscRegistered;
+	FOnDeath OnDeath;
 
 	// handles what happens on all clients (and server) whenever a character dies (multicast RPC)
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath();
+	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FTaggedMontage> AttackMontages;
@@ -127,6 +132,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")  // we dont use blueprintreadonly in private section
 	ECharacterClass CharacterClass = ECharacterClass::Warrior;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
 
 private:
 

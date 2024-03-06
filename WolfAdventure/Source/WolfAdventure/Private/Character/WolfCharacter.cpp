@@ -181,6 +181,9 @@ void AWolfCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = WolfPlayerState->GetAbilitySystemComponent();
 	AttributeSet = WolfPlayerState->GetAttributeSet();
 
+	// we could call this in super since both the enemies and the player call it in the same method but that is prone to error and fragile since we would have to call super after setting the ASC, not before
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
+
 
 	// on the client side, we only have the playercontroller for our character, not the other player's so we need to nullcheck this (server has all the player controllers but not the client)
 	if (AWolfPlayerController* WolfPlayerController = Cast<AWolfPlayerController>(GetController()))

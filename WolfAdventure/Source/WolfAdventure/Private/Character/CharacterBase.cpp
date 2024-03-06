@@ -8,11 +8,17 @@
 #include "Components/CapsuleComponent.h"
 #include "BaseGameplayTags.h"
 #include <WolfAdventure/WolfAdventure.h>
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 ACharacterBase::ACharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	// our character base is dependant on debuffniagaracomponent, which is a good reason to not let debuffniagaracomponent be dependant on characterbase (we dont want circular dependencies). Thats why we use an interface
+	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
+	BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	BurnDebuffComponent->DebuffTag = FBaseGameplayTags::Get().Debuff_Burn;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -35,7 +41,7 @@ UAnimMontage* ACharacterBase::GetHitReactMontage_Implementation()
 	return HitReactMontage;
 }
 
-void ACharacterBase::Die()
+void ACharacterBase::Die(const FVector& DeathImpulse)
 {
 	if (Weapon != nullptr)
 	{
@@ -44,10 +50,10 @@ void ACharacterBase::Die()
 
 	}
 
-	MulticastHandleDeath();
+	MulticastHandleDeath(DeathImpulse);
 }
 
-void ACharacterBase::MulticastHandleDeath_Implementation()
+void ACharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
 
@@ -56,18 +62,22 @@ void ACharacterBase::MulticastHandleDeath_Implementation()
 		Weapon->SetSimulatePhysics(true);
 		Weapon->SetEnableGravity(true);
 		Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true); // bVelChange to true to not take the mass into acount (so we dont need big impulse numbers), weapons are lighter than the mesh thats why we scale
 	}
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true); // bVelChange to true to not take the mass into acount (so we dont need big impulse numbers)
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
 
 	// Because this function is an RPC, even though bDead is not set to isReplicable, because we are changing it inside an RPC, it will replicate to all clients as well (clients and server)
 	bDead = true;
+	BurnDebuffComponent->Deactivate();
+	OnDeath.Broadcast(this);
 }
 
 // Called when the game starts or when spawned
@@ -149,6 +159,16 @@ void ACharacterBase::IncrementMinionCount_Implementation(int32 Amount)
 ECharacterClass ACharacterBase::GetCharacterClass_Implementation()
 {
 	return CharacterClass;
+}
+
+FOnASCRegistered ACharacterBase::GetOnASCRegisteredDelegate()
+{
+	return OnAscRegistered;
+}
+
+FOnDeath ACharacterBase::GetOnDeathDelegate()
+{
+	return OnDeath;
 }
 
 void ACharacterBase::InitAbilityActorInfo()

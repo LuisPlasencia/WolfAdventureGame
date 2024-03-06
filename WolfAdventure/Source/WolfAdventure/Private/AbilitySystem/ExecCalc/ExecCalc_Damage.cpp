@@ -102,6 +102,20 @@ void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParam
 			if (bDebuff)
 			{
 
+				// local variable - not tracked by garbage collection .... its weakobjectptr variables are not tracked by GC aither unlike smart pointers
+				// hey!! this is a context handle, it is not the gameplayeffectcontext itself!! to access it we need to call Get() which we do in the baseabilitysystemlibrary functions! .Get() returns a pointer to the ACTUAL context. The handle is merely a wrapper
+				FGameplayEffectContextHandle ContextHandle = Spec.GetContext();
+
+				UBaseAbilitySystemLibrary::SetIsSuccessfullDebuff(ContextHandle, true);
+				UBaseAbilitySystemLibrary::SetDamageType(ContextHandle, DamageType);
+				
+				const float DebuffDamage = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Damage, false, -1.f);
+				const float DebuffDuration = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Duration, false, -1.f);
+				const float DebuffFrequency = Spec.GetSetByCallerMagnitude(GameplayTags.Debuff_Frequency, false, -1.f);
+
+				UBaseAbilitySystemLibrary::SetDebuffDamage(ContextHandle, DebuffDamage);
+				UBaseAbilitySystemLibrary::SetDebuffDuration(ContextHandle, DebuffDuration);
+				UBaseAbilitySystemLibrary::SetDebuffFrequency(ContextHandle, DebuffFrequency);
 			}
 		}
 	}
@@ -187,6 +201,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// in this case we are going to apply the block before any crit damage, armor penetration or damage boost (design choice)
 	const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
 
+	// local variable - not tracked by garbage collection .... its weakobjectptr variables are not tracked by GC aither unlike smart pointers
+	// hey!! this is a context handle, it is not the gampelayeffectcontext itself!! to access it we need to call Get() which we do in the baseabilitysystemlibrary functions!
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 	// extracting the methods to the library saves us the trouple of accessing the base gameplay effect context each time on different classes
 	UBaseAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
@@ -249,3 +265,5 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	const FGameplayModifierEvaluatedData EvaluatedData(UBaseAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);
 }
+
+
