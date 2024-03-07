@@ -48,6 +48,12 @@ void ABaseProjectile::BeginPlay()
 
 void ABaseProjectile::Destroyed()
 {
+	if (LoopingSoundComponent)
+	{
+		LoopingSoundComponent->Stop();
+		LoopingSoundComponent->DestroyComponent(); // in case the projectile dies due to its lifespam expiring , the looping component may stick around so we want to destroy it
+	}
+
 	// there is a chance that Destroy could replicate down to the client before the client has the function sphereoverlap called (destroyed before sound and niagara) thats why we use the boolean
 	if (!bHit && !HasAuthority())
 	{
@@ -62,7 +68,11 @@ void ABaseProjectile::OnHit()
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 	// the projectile can be destroyed before it can construct a loopingsoundcomponent 
-	if (LoopingSoundComponent) LoopingSoundComponent->Stop();
+	if (LoopingSoundComponent)
+	{
+		LoopingSoundComponent->Stop();
+		LoopingSoundComponent->DestroyComponent(); // in case the projectile doesnt hit anything, the looping component may stick around so we want to destroy it
+	}
 	bHit = true;
 }
 

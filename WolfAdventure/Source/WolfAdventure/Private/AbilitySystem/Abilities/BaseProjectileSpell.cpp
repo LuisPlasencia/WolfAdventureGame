@@ -6,7 +6,6 @@
 #include "Interaction/CombatInterface.h"
 #include <AbilitySystemBlueprintLibrary.h>
 #include "AbilitySystemComponent.h"
-#include "BaseGameplayTags.h"
 
 
 void UBaseProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -39,7 +38,12 @@ void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 
 
 	// we want to make sure that the properties of the actor projectile are set before spawning it (need of gameplay effect, etc), thats why we use spawndeferred
-	ABaseProjectile* Projectile = GetWorld()->SpawnActorDeferred<ABaseProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);  // always spawn regardless of collisions/overrides
+	ABaseProjectile* Projectile = GetWorld()->SpawnActorDeferred<ABaseProjectile>(
+		ProjectileClass, 
+		SpawnTransform, 
+		GetOwningActorFromActorInfo(), 
+		Cast<APawn>(GetOwningActorFromActorInfo()), 
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);  // always spawn regardless of collisions/overrides
 	Projectile->SetOwner(GetAvatarActorFromActorInfo());
 
 	//// Give the Projectile a Gameplay Effect Spec for causing Damage

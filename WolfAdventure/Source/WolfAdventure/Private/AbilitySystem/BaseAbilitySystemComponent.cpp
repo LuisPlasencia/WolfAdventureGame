@@ -53,6 +53,29 @@ void UBaseAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSub
 	}
 }
 
+// only called once everytime we click
+void UBaseAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid()) return;
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			// we tell the ability that its input is being pressed (ABILITY STATUS) (this is useful because we can check whether an ability is being pressed or released and act accordingly in other parts of the project, etc... ITS STATUS)
+			AbilitySpecInputPressed(AbilitySpec);
+			// if it was already pressed (ability activated before the wait input press), we press
+			// theres no reason to pass the input to the ability if its not even active!
+			if (AbilitySpec.IsActive())
+			{
+				// we tell the server that we are pressing the input (replicated event) (this is necessary if we want use "wait input presed" ability task node
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+
+			}
+		}
+	}
+}
+
 void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;
@@ -61,8 +84,9 @@ void UBaseAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 	{
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
-			// we tell the ability that its input is being pressed
+			// we tell the ability that its input is being pressed (ABILITY STATUS) (this is useful because we can check whether an ability is being pressed or released and act accordingly in other parts of the project, etc... ITS STATUS)
 			AbilitySpecInputPressed(AbilitySpec);
+
 			if (!AbilitySpec.IsActive())
 			{
 				// we try to activate the ability, since it may be blocked by other abilities
@@ -81,10 +105,12 @@ void UBaseAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
 		{
-			// we tell the ability that its input is being released
+			// we tell the ability that its input is being released (ABILITY STATUS) (this is useful because we can check whether an ability is being pressed or released and act accordingly in other parts of the project, etc... ITS STATUS)
 			AbilitySpecInputReleased(AbilitySpec);
+			// we tell the server that we are releasing the input (replicated event) (this is necessary if we want use "wait input release" ability task node
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 		}
 	}
 
