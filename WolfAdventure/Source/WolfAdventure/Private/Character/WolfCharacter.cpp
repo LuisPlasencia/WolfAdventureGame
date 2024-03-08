@@ -35,7 +35,7 @@ AWolfCharacter::AWolfCharacter()
 	CameraBoom->SetupAttachment(GetRootComponent());
 	CameraBoom->TargetArmLength = 600.f;
 	CameraBoom->bUsePawnControlRotation = true;
-	CameraBoom->bDoCollisionTest = false;
+	CameraBoom->bDoCollisionTest = true;
 	CameraBoom->SetUsingAbsoluteRotation(true);
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
@@ -225,6 +225,7 @@ void AWolfCharacter::Tick(float DeltaTime)
 
 void AWolfCharacter::Move(const FInputActionValue& Value)
 {
+
 	// if (ActionState != EActionState::EAS_Unoccupied) return;  we dont wanna move when we dont want to move
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 

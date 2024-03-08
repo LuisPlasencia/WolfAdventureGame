@@ -62,6 +62,11 @@ void AWolfPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
 	//GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
 
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FBaseGameplayTags::Get().Player_Block_InputPressed))
+	{
+		return;
+	}
+
 	if (GetASC())
 	{
 		GetASC()->AbilityInputTagPressed(InputTag);
@@ -70,6 +75,11 @@ void AWolfPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void AWolfPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FBaseGameplayTags::Get().Player_Block_InputReleased))
+	{
+		return;
+	}
+
 	if (GetASC() == nullptr) return;
 	GetASC()->AbilityInputTagReleased(InputTag);
 
@@ -78,6 +88,11 @@ void AWolfPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AWolfPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FBaseGameplayTags::Get().Player_Block_InputHeld))
+	{
+		return;
+	}
+
 	// casting every frame is expensive!! we store the cast and just do it once
 	// because asc can be null if we call it too early in the game we return early
 	if (GetASC() == nullptr) return;
@@ -132,6 +147,15 @@ void AWolfPlayerController::UnHighlightActor(AActor* InActor)
 
 void AWolfPlayerController::CrosshairTrace()
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FBaseGameplayTags::Get().Player_Block_CrosshairTrace))
+	{
+		UnHighlightActor(LastActor);
+		UnHighlightActor(ThisActor);
+		LastActor = nullptr;
+		ThisActor = nullptr;
+		return;
+	}
+
 	FHitResult CrosshairHit;
 
 	// Viewport Size

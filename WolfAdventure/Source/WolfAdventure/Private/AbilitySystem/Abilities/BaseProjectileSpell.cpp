@@ -44,7 +44,6 @@ void UBaseProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		GetOwningActorFromActorInfo(), 
 		Cast<APawn>(GetOwningActorFromActorInfo()), 
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);  // always spawn regardless of collisions/overrides
-	Projectile->SetOwner(GetAvatarActorFromActorInfo());
 
 	//// Give the Projectile a Gameplay Effect Spec for causing Damage
 	//const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());

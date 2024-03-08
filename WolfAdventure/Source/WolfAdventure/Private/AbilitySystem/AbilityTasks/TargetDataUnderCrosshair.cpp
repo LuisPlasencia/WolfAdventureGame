@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/AbilityTasks/TargetDataUnderCrosshair.h"
 #include "AbilitySystemComponent.h"
+#include <WolfAdventure/WolfAdventure.h>
 
 UTargetDataUnderCrosshair* UTargetDataUnderCrosshair::CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility)
 {
@@ -53,7 +54,7 @@ void UTargetDataUnderCrosshair::SendCrosshairData()
 
 	FVector2D CrosshairPosition = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 3);
 	//PC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_WorldDynamic, false, CrosshairHit);
-	PC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_Visibility, false, CrosshairHit);
+	PC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_Target, false, CrosshairHit);
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();
