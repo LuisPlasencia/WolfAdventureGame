@@ -59,7 +59,14 @@ void UBaseBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 			}
 		}
 	}
-	
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(CrosshairHitActor))
+	{
+		// we only need to bind once, so we check if we already have
+		if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UBaseBeamSpell::PrimaryTargetDied))
+		{
+			CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UBaseBeamSpell::PrimaryTargetDied);
+		}
+	}
 }
 
 void UBaseBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
@@ -76,8 +83,21 @@ void UBaseBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTarget
 		850.f,
 		CrosshairHitActor->GetActorLocation());
 
-	//int32 NumAdditionalTargets = FMath::Min(GetAbilityLevel() - 1, MaxNumShockTargets);
-	int32 NumAdditionalTargets = 5;
+	int32 NumAdditionalTargets = FMath::Min(GetAbilityLevel() - 1, MaxNumShockTargets);
+	//int32 NumAdditionalTargets = 5;
 
 	UBaseAbilitySystemLibrary::GetClosestTargets(NumAdditionalTargets, OverlappingActors, OutAdditionalTargets, CrosshairHitActor->GetActorLocation());
+
+	for (AActor* Target : OutAdditionalTargets)
+	{
+		if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Target))
+		{
+			// we only need to bind once, so we check if we already have
+			if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UBaseBeamSpell::AdditionalTargetDied))
+			{
+				CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UBaseBeamSpell::AdditionalTargetDied);
+			}
+		}
+	}
+
 }

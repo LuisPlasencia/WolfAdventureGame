@@ -379,6 +379,7 @@ FGameplayEffectContextHandle UBaseAbilitySystemLibrary::ApplyDamageEffect(const 
 	SetDeathImpulse(EffectContextHandle, DamageEffectParams.DeathImpulse);
 	SetKnockbackForce(EffectContextHandle, DamageEffectParams.KnockbackForce);
 	
+	// The spec handle is created with the SOURCE ASC and we associate magnitude to tags in this spec handle!
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
 	
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.BaseDamage);
@@ -387,6 +388,7 @@ FGameplayEffectContextHandle UBaseAbilitySystemLibrary::ApplyDamageEffect(const 
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, DamageEffectParams.DebuffDuration);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, DamageEffectParams.DebuffFrequency);
 	
+	// The spec handle created with the source ASC is then APPLIED to the ASC of the TARGET as a Gameplay Effect!
 	DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data); // dereferencing the wrapper will also give you the dereferenced value inside of it (no need for Get())
 
 	return EffectContextHandle;

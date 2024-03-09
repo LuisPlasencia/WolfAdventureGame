@@ -77,7 +77,7 @@ void ACharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImp
 	// Because this function is an RPC, even though bDead is not set to isReplicable, because we are changing it inside an RPC, it will replicate to all clients as well (clients and server)
 	bDead = true;
 	BurnDebuffComponent->Deactivate();
-	OnDeath.Broadcast(this);
+	OnDeathDelegate.Broadcast(this);
 }
 
 // Called when the game starts or when spawned
@@ -161,14 +161,14 @@ ECharacterClass ACharacterBase::GetCharacterClass_Implementation()
 	return CharacterClass;
 }
 
-FOnASCRegistered ACharacterBase::GetOnASCRegisteredDelegate()
+FOnASCRegistered& ACharacterBase::GetOnASCRegisteredDelegate()
 {
 	return OnAscRegistered;
 }
 
-FOnDeath ACharacterBase::GetOnDeathDelegate()
+FOnDeathSignature& ACharacterBase::GetOnDeathDelegate()
 {
-	return OnDeath;
+	return OnDeathDelegate;
 }
 
 USkeletalMeshComponent* ACharacterBase::GetWeapon_Implementation()

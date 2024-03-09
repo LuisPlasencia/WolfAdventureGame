@@ -155,7 +155,7 @@ private:
 
 	virtual void InitAbilityActorInfo() override;
 
-	// we want the clients to see the level up particles when characters level up, not just the server
+	// we want the clients to see the particles when characters level up, not just the server
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUpParticles() const;
 };

@@ -41,13 +41,13 @@ public:
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void IncrementMinionCount_Implementation(int32 Amount) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
-	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
-	virtual FOnDeath GetOnDeathDelegate() override;
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
+	virtual FOnDeathSignature& GetOnDeathDelegate() override;
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	/** end Combat Interface  */
 
 	FOnASCRegistered OnAscRegistered;
-	FOnDeath OnDeath;
+	FOnDeathSignature OnDeathDelegate;
 
 	// handles what happens on all clients (and server) whenever a character dies (multicast RPC)
 	UFUNCTION(NetMulticast, Reliable)

@@ -49,4 +49,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Beam")
 	int32 MaxNumShockTargets = 5;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PrimaryTargetDied(AActor* DeadActor);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void AdditionalTargetDied(AActor* DeadActor);
+
 };
