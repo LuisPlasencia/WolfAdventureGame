@@ -13,6 +13,7 @@ class UBaseInputConfig;
 class UBaseAbilitySystemComponent;
 class UInputAction;
 class UDamageTextComponent;
+struct FInputActionValue;
 
 /**
  * 
@@ -30,7 +31,14 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
 
+
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+		TObjectPtr<UInputAction> JumpAction;
+
 	virtual void SetupInputComponent() override;
 
 private:
@@ -44,6 +52,8 @@ private:
 	void ShiftPressed() { bShiftKeyDown = true; }
 	void ShiftReleased() { bShiftKeyDown = false; };
 	bool bShiftKeyDown = false;
+	void Move(const FInputActionValue& Value);
+	void Jump(const FInputActionValue& Value);
 
 	void CrosshairTrace();
 	TObjectPtr<AActor> LastActor;
@@ -62,4 +72,11 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+
+	bool isJumping = false;
+
+	UPROPERTY(EditAnywhere)
+	float timeBetweenJumps = 1.0f;
+
+	void FinishJumping();
 };

@@ -51,12 +51,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 
+	virtual void OnRep_Stunned() override;
+	virtual void OnRep_Burned();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -84,13 +86,13 @@ protected:
 	TObjectPtr<UInputAction> DodgeAction;
 
 	UPROPERTY(EditAnywhere)
-		float timeBetweenJumps = 1.0f;
+	float timeBetweenJumps = 1.0f;
 
 	UPROPERTY(EditAnywhere)
-		float timeBetweenAttacks = 1.0f;
+	float timeBetweenAttacks = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool isAttacking = false;
+	bool isAttacking = false;
 
 	bool isJumping = false;
 

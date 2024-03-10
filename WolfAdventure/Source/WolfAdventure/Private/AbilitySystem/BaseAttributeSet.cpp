@@ -209,11 +209,15 @@ void UBaseAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 		}
 		else
 		{
-			FGameplayTagContainer TagContainer;
-			TagContainer.AddTag(FBaseGameplayTags::Get().Effects_HitReact);
-			// we are doing this on the server to the target of the effect
-			// keep in mind that we dont want enemies to hit react while burning or debuffing so we add debuff blocked tags to the blueprint hit react gameplay ability 
-			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			if (Props.TargetCharacter->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsBeingShocked(Props.TargetCharacter))
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FBaseGameplayTags::Get().Effects_HitReact);
+				// we are doing this on the server to the target of the effect
+				// keep in mind that we dont want enemies to hit react while burning or debuffing so we add debuff blocked tags to the blueprint hit react gameplay ability 
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+
 
 			// handle knockback
 			const FVector& KnockbackForce = UBaseAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle);
@@ -261,8 +265,26 @@ void UBaseAttributeSet::Debuff(const FEffectProperties& Props)
 	// Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
-	TagContainer.Added.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
-	TagContainer.CombinedTags.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType];
+	TagContainer.Added.AddTag(DebuffTag);
+	TagContainer.CombinedTags.AddTag(DebuffTag);
+	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun))
+	{
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_CrosshairTrace);
+		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_CrosshairTrace);
+
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_CursorTrace);
+		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_CursorTrace);
+
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld);
+		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_InputHeld);
+
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputPressed);
+		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_InputPressed);
+		
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputReleased);
+		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_InputReleased);
+	}
 	Component.SetAndApplyTargetTagChanges(TagContainer);
 
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;

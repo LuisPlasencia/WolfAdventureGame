@@ -10,6 +10,7 @@
 #include <Interaction/EnemyInterface.h>
 #include "GameFramework/Character.h"
 #include "UI/Widget/DamageTextComponent.h"
+#include <Character/WolfCharacter.h>
 
 AWolfPlayerController::AWolfPlayerController()
 {
@@ -54,7 +55,10 @@ void AWolfPlayerController::SetupInputComponent()
 
 	BaseInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AWolfPlayerController::ShiftPressed);
 	BaseInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AWolfPlayerController::ShiftReleased);
-	BaseInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);;
+	BaseInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+
+	BaseInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AWolfPlayerController::Move);
+	BaseInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AWolfPlayerController::Jump);
 
 }
 
@@ -181,4 +185,55 @@ void AWolfPlayerController::CrosshairTrace()
 		UnHighlightActor(LastActor);
 		HighlightActor(ThisActor);
 	}
+}
+
+
+void AWolfPlayerController::Move(const FInputActionValue& Value)
+{
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FBaseGameplayTags::Get().Player_Block_InputHeld))
+	{
+		return;
+	}
+	// if (ActionState != EActionState::EAS_Unoccupied) return;  we dont wanna move when we dont want to move
+	const FVector2D MovementVector = Value.Get<FVector2D>();
+
+	//const FVector Forward = GetActorForwardVector();
+	//AddMovementInput(Forward, MovementVector.Y);
+
+	//const FVector Right = GetActorRightVector();
+	//AddMovementInput(Right, MovementVector.X);
+
+	const FRotator Rotation = GetControlRotation();
+	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
+
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		ControlledPawn->AddMovementInput(ForwardDirection, MovementVector.Y);
+
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		ControlledPawn->AddMovementInput(RightDirection, MovementVector.X);
+	}
+
+}
+
+void AWolfPlayerController::Jump(const FInputActionValue& Value)
+{
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FBaseGameplayTags::Get().Player_Block_InputHeld))
+	{
+		return;
+	}
+
+	if (!isJumping)
+	{
+		isJumping = true;
+		FTimerHandle JumpTimer;
+		GetWorldTimerManager().SetTimer(JumpTimer, this, &AWolfPlayerController::FinishJumping, timeBetweenJumps, false);
+		GetCharacter()->Jump();
+	}
+}
+
+void AWolfPlayerController::FinishJumping()
+{
+	isJumping = false;
 }

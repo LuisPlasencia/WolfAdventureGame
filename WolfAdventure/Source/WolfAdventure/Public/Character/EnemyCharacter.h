@@ -52,9 +52,6 @@ public:
 	bool bHitReacting = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-	float BaseWalkSpeed = 250.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
@@ -66,6 +63,8 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 
 	virtual void InitializeDefaultAttributes() const override;
+
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 	// we dont replicate the level on the enemy because we only check the level on the server on AI controlled enemies
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")  // we dont use blueprintreadonly in private section

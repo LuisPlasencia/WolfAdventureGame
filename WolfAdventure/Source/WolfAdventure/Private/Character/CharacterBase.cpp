@@ -9,7 +9,9 @@
 #include "BaseGameplayTags.h"
 #include <WolfAdventure/WolfAdventure.h>
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include <Kismet/GameplayStatics.h>
+#include <Net/UnrealNetwork.h>
 
 ACharacterBase::ACharacterBase()
 {
@@ -19,6 +21,10 @@ ACharacterBase::ACharacterBase()
 	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
 	BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	BurnDebuffComponent->DebuffTag = FBaseGameplayTags::Get().Debuff_Burn;
+
+	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffComponent");
+	StunDebuffComponent->SetupAttachment(GetRootComponent());
+	StunDebuffComponent->DebuffTag = FBaseGameplayTags::Get().Debuff_Stun;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -34,6 +40,15 @@ ACharacterBase::ACharacterBase()
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACharacterBase, bIsStunned);
+	DOREPLIFETIME(ACharacterBase, bIsBurned);
+	DOREPLIFETIME(ACharacterBase, bIsBeingShocked);
 }
 
 UAnimMontage* ACharacterBase::GetHitReactMontage_Implementation()
@@ -77,7 +92,24 @@ void ACharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImp
 	// Because this function is an RPC, even though bDead is not set to isReplicable, because we are changing it inside an RPC, it will replicate to all clients as well (clients and server)
 	bDead = true;
 	BurnDebuffComponent->Deactivate();
+	StunDebuffComponent->Deactivate();
 	OnDeathDelegate.Broadcast(this);
+}
+
+void ACharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	// new count = 0 when we end the ability
+	bIsStunned = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;   // if true 0 if false basewalkspeed
+}
+
+void ACharacterBase::OnRep_Stunned()
+{
+	
+}
+
+void ACharacterBase::OnRep_Burned()
+{
 }
 
 // Called when the game starts or when spawned
@@ -174,6 +206,16 @@ FOnDeathSignature& ACharacterBase::GetOnDeathDelegate()
 USkeletalMeshComponent* ACharacterBase::GetWeapon_Implementation()
 {
 	return Weapon;
+}
+
+void ACharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
+{
+	bIsBeingShocked = bInShock;
+}
+
+bool ACharacterBase::IsBeingShocked_Implementation() const
+{
+	return bIsBeingShocked;
 }
 
 void ACharacterBase::InitAbilityActorInfo()

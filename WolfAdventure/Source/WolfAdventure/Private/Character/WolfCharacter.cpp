@@ -14,6 +14,8 @@
 #include <UI/HUD/BaseHUD.h>
 #include <AbilitySystem/BaseAbilitySystemComponent.h>
 #include "NiagaraComponent.h"
+#include "BaseGameplayTags.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include <AbilitySystem/Data/LevelUpInfo.h>
 
 // Sets default values
@@ -183,6 +185,7 @@ void AWolfCharacter::InitAbilityActorInfo()
 
 	// we could call this in super since both the enemies and the player call it in the same method but that is prone to error and fragile since we would have to call super after setting the ASC, not before
 	OnAscRegistered.Broadcast(AbilitySystemComponent);
+	AbilitySystemComponent->RegisterGameplayTagEvent(FBaseGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AWolfCharacter::StunTagChanged);
 
 
 	// on the client side, we only have the playercontroller for our character, not the other player's so we need to nullcheck this (server has all the player controllers but not the client)
@@ -216,6 +219,44 @@ void AWolfCharacter::BeginPlay()
 	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &AWolfCharacter::OnEndOverlap);
 }
 
+//client
+void AWolfCharacter::OnRep_Stunned()
+{
+	// we add or remove blocked tags on the clients with this rep notify because in baseattributeset Debuff() function, they are only added on the server since the function only runs on the server
+	if (UBaseAbilitySystemComponent* BaseASC = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		const FBaseGameplayTags& GameplayTags = FBaseGameplayTags::Get();
+		FGameplayTagContainer BlockedTags;
+		BlockedTags.AddTag(GameplayTags.Player_Block_CursorTrace);
+		BlockedTags.AddTag(GameplayTags.Player_Block_CrosshairTrace);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputHeld);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputPressed);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputReleased);
+		if (bIsStunned)
+		{
+			BaseASC->AddLooseGameplayTags(BlockedTags);
+			StunDebuffComponent->Activate();
+		}
+		else
+		{
+			BaseASC->RemoveLooseGameplayTags(BlockedTags);
+			StunDebuffComponent->Deactivate();
+		}
+	}
+}
+
+void AWolfCharacter::OnRep_Burned()
+{
+	if (bIsBurned)
+	{
+		BurnDebuffComponent->Activate();
+	}
+	else
+	{
+		BurnDebuffComponent->Deactivate();
+	}
+}
+
 // Called every frame
 void AWolfCharacter::Tick(float DeltaTime)
 {
@@ -225,8 +266,9 @@ void AWolfCharacter::Tick(float DeltaTime)
 
 void AWolfCharacter::Move(const FInputActionValue& Value)
 {
-
-	// if (ActionState != EActionState::EAS_Unoccupied) return;  we dont wanna move when we dont want to move
+	/*
+	
+		// if (ActionState != EActionState::EAS_Unoccupied) return;  we dont wanna move when we dont want to move
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	//const FVector Forward = GetActorForwardVector();
@@ -244,6 +286,10 @@ void AWolfCharacter::Move(const FInputActionValue& Value)
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	AddMovementInput(RightDirection, MovementVector.X);
 
+
+	*/
+
+
 }
 
 void AWolfCharacter::Look(const FInputActionValue& Value)
@@ -259,6 +305,8 @@ void AWolfCharacter::Look(const FInputActionValue& Value)
 
 void AWolfCharacter::Jump(const FInputActionValue& Value)
 {
+	/*
+	
 	if (!isJumping)
 	{
 		isJumping = true;
@@ -266,7 +314,7 @@ void AWolfCharacter::Jump(const FInputActionValue& Value)
 		GetWorldTimerManager().SetTimer(JumpTimer, this, &AWolfCharacter::FinishJumping, timeBetweenJumps, false);
 		Cast<ACharacter>(this)->Jump();
 	}
-
+	*/
 }
 
 void AWolfCharacter::Dodge()
@@ -392,9 +440,9 @@ void AWolfCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Move);
+		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Look);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Jump);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Dodge);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Attack);
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AWolfCharacter::Equip);
