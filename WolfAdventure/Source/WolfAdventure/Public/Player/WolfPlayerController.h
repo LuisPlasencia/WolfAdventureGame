@@ -13,6 +13,7 @@ class UBaseInputConfig;
 class UBaseAbilitySystemComponent;
 class UInputAction;
 class UDamageTextComponent;
+class AMagicCircle;
 struct FInputActionValue;
 
 /**
@@ -31,6 +32,11 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
 
+	UFUNCTION(BlueprintCallable)
+	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
+
+	UFUNCTION(BlueprintCallable)
+	void HideMagicCircle();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -79,4 +85,14 @@ private:
 	float timeBetweenJumps = 1.0f;
 
 	void FinishJumping();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AMagicCircle> MagicCircleClass;
+
+	UPROPERTY()
+	TObjectPtr<AMagicCircle> MagicCircle;
+
+	void UpdateMagicCircleLocation();
+
+	FHitResult CrosshairHit;
 };

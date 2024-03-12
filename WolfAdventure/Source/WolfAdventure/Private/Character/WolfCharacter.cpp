@@ -167,6 +167,23 @@ int32 AWolfCharacter::GetSpellPoints_Implementation() const
 	return WolfPlayerState->GetSpellPoints();
 }
 
+void AWolfCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial)
+{
+	// this class depends on the player controller, not the other way around (one way dependency) (+avoid cicling dependencies)
+	if (AWolfPlayerController* WolfPlayerController = Cast<AWolfPlayerController>(GetController()))
+	{
+		WolfPlayerController->ShowMagicCircle(DecalMaterial);
+	}
+}
+
+void AWolfCharacter::HideMagicCircle_Implementation()
+{
+	if (AWolfPlayerController* WolfPlayerController = Cast<AWolfPlayerController>(GetController()))
+	{
+		WolfPlayerController->HideMagicCircle();
+	}
+}
+
 int32 AWolfCharacter::GetPlayerLevel_Implementation()
 {
 	const AWolfPlayerState * WolfPlayerState = GetPlayerState<AWolfPlayerState>();

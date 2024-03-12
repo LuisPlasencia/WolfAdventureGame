@@ -8,8 +8,10 @@
 #include "AbilitySystem/BaseAbilitySystemComponent.h"
 #include <BaseGameplayTags.h>
 #include <Interaction/EnemyInterface.h>
+#include "Actor/MagicCircle.h"
 #include "GameFramework/Character.h"
 #include "UI/Widget/DamageTextComponent.h"
+#include "Components/DecalComponent.h"
 #include <Character/WolfCharacter.h>
 
 AWolfPlayerController::AWolfPlayerController()
@@ -22,6 +24,31 @@ void AWolfPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 	CrosshairTrace();
+	UpdateMagicCircleLocation();
+}
+
+void AWolfPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+{
+	// we lazily spawn our magic circle, if it is not valid (pending kill or null destroyed), create one
+	// since we are not always going to use it, we will destroy it when we are not using it, especially since it will update itself in tick
+	if (!IsValid(MagicCircle))
+	{
+		MagicCircle = GetWorld()->SpawnActor<AMagicCircle>(MagicCircleClass);
+		if (DecalMaterial)
+		{
+			MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
+		}
+	}
+
+}
+
+void AWolfPlayerController::HideMagicCircle()
+{
+	if (IsValid(MagicCircle))
+	{
+		MagicCircle->Destroy();
+	}
+
 }
 
 void AWolfPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
@@ -160,8 +187,6 @@ void AWolfPlayerController::CrosshairTrace()
 		return;
 	}
 
-	FHitResult CrosshairHit;
-
 	// Viewport Size
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
@@ -236,4 +261,12 @@ void AWolfPlayerController::Jump(const FInputActionValue& Value)
 void AWolfPlayerController::FinishJumping()
 {
 	isJumping = false;
+}
+
+void AWolfPlayerController::UpdateMagicCircleLocation()
+{
+	if (IsValid(MagicCircle))
+	{
+		MagicCircle->SetActorLocation(CrosshairHit.ImpactPoint);
+	}
 }

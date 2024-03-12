@@ -329,16 +329,22 @@ void UBaseAttributeSet::HandleIncomingXP(const FEffectProperties& Props)
 
 		if (NumOfLevelUps > 0)
 		{
-			// Get AttributePointsReward and SpellPointReward
-			const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-			const int32 SpellPointsRewardReward = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
-
 			// Add to Player Level
 			IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumOfLevelUps);
 
+			// Get AttributePointsReward and SpellPointReward
+			int32 AttributePointsReward = 0; 
+			int32 SpellPointsReward = 0; 
+
+			for (int32 i = 0; i < NumOfLevelUps; ++i)
+			{
+				SpellPointsReward += IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel + i);
+				AttributePointsReward += IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel + i);
+			}
+
 			// Add to AttributePoints and Spellpoints
 			IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
-			IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsRewardReward);
+			IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
 
 			// Fill up Health and Mana. Because level up attributes will change maxhealth and max mana, we will fill up health and mana bars on post attribute change
 			bTopOffHealth = true;

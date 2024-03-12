@@ -128,7 +128,7 @@ void USpellMenuWidgetController::EquipButtonPressed()
 	const FGameplayTag SelectedStatus = GetBaseASC()->GetStatusFromAbilityTag(SelectedAbility.Ability);
 	if (SelectedStatus.MatchesTagExact(FBaseGameplayTags::Get().Abilities_Status_Equipped))
 	{
-		SelectedSlot = GetBaseASC()->GetInputTagFromAbilityTag(SelectedAbility.Ability);
+		SelectedSlot = GetBaseASC()->GetSlotFromAbilityTag(SelectedAbility.Ability);
 	}
 }
 
