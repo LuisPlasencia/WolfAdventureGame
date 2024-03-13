@@ -28,10 +28,11 @@ public:
 	ACharacterBase();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
+
+	virtual float TakeDamage(float DamageAmound, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
-	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 	/** Combat Interface  */
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
@@ -50,10 +51,13 @@ public:
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override;
 	virtual bool IsBeingShocked_Implementation() const override;
+	// because we have imported the combatinterface header file, we dont need to forward declare this delegate reference. (side note: If it was a copy and not a reference we would have to import the h file no matter what.)
+	virtual FOnDamageSignature& GetOnDamageSignature() override;
 	/** end Combat Interface  */
 
 	FOnASCRegistered OnAscRegistered;
 	FOnDeathSignature OnDeathDelegate;
+	FOnDamageSignature OnDamageDelegate;
 
 	// handles what happens on all clients (and server) whenever a character dies (multicast RPC)
 	UFUNCTION(NetMulticast, Reliable)

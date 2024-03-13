@@ -9,6 +9,7 @@
 #include <AbilitySystem/BaseAbilitySystemLibrary.h>
 #include <Interaction/CombatInterface.h>
 #include <BaseAbilityTypes.h>
+#include <Kismet/GameplayStatics.h>
 
 // damage execution calculations can be predicted
 // ExecCalcs can mmodify multiple attributes, but MMCs cannot
@@ -159,6 +160,9 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	}
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	// local variable - not tracked by garbage collection .... its weakobjectptr variables are not tracked by GC aither unlike smart pointers
+	// hey!! this is a context handle, it is not the gampelayeffectcontext itself!! to access it we need to call Get() which we do in the baseabilitysystemlibrary functions!
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
@@ -188,7 +192,43 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 		DamageTypeValue *= (100.f - Resistance) / 100.f;  // we reduce the damage type value by the resistance to that damage type in percentage
 
+		if (UBaseAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
+		{
+			// 1. override TakeDamage in CharacterBase *
+			// 2. create delegate OnDamageDelegate, broadcast damage received in TakeDamage *
+			// 3. Bind lambda to OnDamageDelegate on the Victim here. * 
+			// 4. Call UGameplayStatics::ApplyRadialDamageWithFalloff to cause damage (this will result in TakeDamage being called
+			//		on the Victim, which will then broadcast OnDamageDelegate) *
+			// 5. In Lambda, set DamageTypeValue to the damage received from the broadcast *
+
+			// we avoid this class depending on characterbase by getting the delegate through an interface.
+			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatar))
+			{
+				// the & in the capture brackets captures everything by reference.
+				CombatInterface->GetOnDamageSignature().AddLambda([&](float DamageAmount) 
+				{
+					// we are not overriding the resistance calculations because we already took them into acount when we called the radial damage function.
+					DamageTypeValue = DamageAmount;
+
+				});
+			}
+
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				TargetAvatar, 
+				DamageTypeValue,
+				0.f,
+				UBaseAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
+				UBaseAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
+				UBaseAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
+				1.f,
+				UDamageType::StaticClass(),
+				TArray<AActor*>(),
+				SourceAvatar,
+				nullptr);
+		}
+		
 		Damage += DamageTypeValue;
+
 	}
 
 	// Capture BlockChance on Target and determine if there was a successful Block
@@ -201,9 +241,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// in this case we are going to apply the block before any crit damage, armor penetration or damage boost (design choice)
 	const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
 
-	// local variable - not tracked by garbage collection .... its weakobjectptr variables are not tracked by GC aither unlike smart pointers
-	// hey!! this is a context handle, it is not the gampelayeffectcontext itself!! to access it we need to call Get() which we do in the baseabilitysystemlibrary functions!
-	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
+
 	// extracting the methods to the library saves us the trouple of accessing the base gameplay effect context each time on different classes
 	UBaseAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
 

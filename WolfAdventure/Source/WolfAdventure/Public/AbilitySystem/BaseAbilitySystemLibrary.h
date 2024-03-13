@@ -28,6 +28,11 @@ class WOLFADVENTURE_API UBaseAbilitySystemLibrary : public UBlueprintFunctionLib
 	GENERATED_BODY()
 	
 public:
+
+	/*
+	*   Widget Controller
+	*/
+
 	// blueprint pure since it doesnt change anything.. Default to self sets the variable named "WorldContextObject" to self 
 	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, ABaseHUD*& OutBaseHUD); // this a pointer passed in by reference
@@ -41,6 +46,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldContextObject);
 
+
+	/*
+	*   Ability System Class Defaults
+	*/
+
 	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC);
 
@@ -52,6 +62,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|CharacterClassDefaults")
 	static UAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
+
+
+	/*
+	*   Effect Context Getters
+	*/
 
 	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayEffects")
 	static bool IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle);
@@ -79,6 +94,23 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayEffects")
 	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static bool IsRadialDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static float GetRadialDamageInnerRadius(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static float GetRadialDamageOuterRadius(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static FVector GetRadialDamageOrigin(const FGameplayEffectContextHandle& EffectContextHandle);
+
+
+	/*
+	*   Effect Context Setters
+	*/
 
 	// because we are not using a const input parameter (non const reference), we need to tell the reflection system that we want an input execution pin, not an output pin for the EffectContextHandle in the event graph BP node. (UPARAM(ref))
 	// In UE, if a function input is a non const reference that means that it is typically an out parameter by default.
@@ -109,6 +141,23 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|GameplayEffects")
 	static void SetKnockbackForce(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const FVector& InForce);
+
+	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static void SetIsRadialDamage(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsRadialDamage);
+
+	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static void SetRadialDamageInnerRadius(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, float InInnerRadius);
+
+	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static void SetRadialDamageOuterRadius(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, float InOuterRadius);
+
+	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|GameplayEffects")
+	static void SetRadialDamageOrigin(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const FVector& InOrigin);
+
+
+	/*
+	*  Gameplay Mechanics
+	*/
 
 	// Symilar to ApplyRadialDamageWithFalloff in UGameplayStatics
 	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|GameplayMechanics")

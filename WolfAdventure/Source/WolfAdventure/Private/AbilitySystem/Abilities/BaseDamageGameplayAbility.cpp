@@ -49,7 +49,15 @@ FDamageEffectParams UBaseDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 		Params.DeathImpulse = ToTarget * DeathImpulseMagnitude;
 		Params.KnockbackForce = ToTarget * KnockbackForceMagnitude;
 	}
-
+	if (bIsRadialDamage)
+	{
+		// if we are going to apply a gameplay effect and make use of these, we will set them in the effect context
+		// an alternative is to make these set by caller magnitudes, but that would crowd up our gameplayeffectspec with too many set by caller magnitudes and we would have create more gameplay tags  
+		Params.bIsRadialDamage = bIsRadialDamage;
+		Params.RadialDamageOrigin = RadialDamageOrigin;
+		Params.RadialDamageInnerRadius = RadialDamageInnerRadius;
+		Params.RadialDamageOuterRadius = RadialDamageOuterRadius;
+	}
 	return Params;
 }
 

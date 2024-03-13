@@ -59,6 +59,18 @@ struct FDamageEffectParams
 
 	UPROPERTY(BlueprintReadWrite)
 	FVector KnockbackForce = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsRadialDamage = false;
+
+	UPROPERTY(BlueprintReadWrite)
+	float RadialDamageInnerRadius = 0.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float RadialDamageOuterRadius = 0.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	FVector RadialDamageOrigin = FVector::ZeroVector;
 };
 
 // the effect context lives with the gameplay effect and carries along information
@@ -79,6 +91,10 @@ public:
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
 	FVector GetKnockbackForce() const { return KnockbackForce; }
+	bool IsRadialDamage() const { return bIsRadialDamage; }
+	float GetRadialDamageInnerRadius() const { return RadialDamageInnerRadius; }
+	float GetRadialDamageOuterRadius() const { return RadialDamageOuterRadius; }
+	FVector GetRadialDamageOrigin() const { return RadialDamageOrigin; }
 
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
@@ -89,6 +105,12 @@ public:
 	void SetDamageType(TSharedPtr<FGameplayTag> InDamageType) { DamageType = InDamageType; }
 	void SetDeathImpulse(const FVector& InImpulse) { DeathImpulse = InImpulse; }
 	void SetKnockbackForce(const FVector& InForce) { KnockbackForce = InForce; }
+	void SetIsRadialDamage(bool bInIsRadialDamage) { bIsRadialDamage = bInIsRadialDamage; }
+	void SetRadialDamageInnerRadius(float InRadialDamageInnerRadius) { RadialDamageInnerRadius = InRadialDamageInnerRadius; }
+	void SetRadialDamageOuterRadius(float InRadialDamageOuterRadius) { RadialDamageOuterRadius = InRadialDamageOuterRadius; }
+	void SetRadialDamageOrigin(const FVector InRadialDamageOrigin) { RadialDamageOrigin = InRadialDamageOrigin; }
+
+
 
 	// A UClass is generated for each class in the engine that's derived from UObject for the reflection system,
 	// structs also have a version of this called the ScriptStruct so when we create a struct that's capable of being exposed to the reflection system, a script struct is created for the reflection system
@@ -153,6 +175,19 @@ protected:
 
 	UPROPERTY()
 	FVector KnockbackForce = FVector::ZeroVector;
+
+	UPROPERTY()
+	bool bIsRadialDamage = false;
+
+	UPROPERTY()
+	float RadialDamageInnerRadius = 0.f;
+
+	UPROPERTY()
+	float RadialDamageOuterRadius = 0.f;
+
+	UPROPERTY()
+	FVector RadialDamageOrigin = FVector::ZeroVector;
+
 };
 
 

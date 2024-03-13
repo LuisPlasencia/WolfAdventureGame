@@ -9,11 +9,14 @@
 #include "CombatInterface.generated.h"
 
 class UAbilitySystemComponent;
+class UAnimMontage;
+class USystem;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*);
 // we want to be able to bind to BP since it is really useful to have a delegate for when something dies (hence dynamic)
 // remember that the enemies dies and then x seconds later they disappear and get destroyed, so it is useful to know when they are in the "dead" state which is different from the destroyed one
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathSignature, AActor*, DeadActor);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDamageSignature, float /*DamageAmound*/);
 
 
 USTRUCT(BlueprintType)
@@ -41,8 +44,6 @@ class UCombatInterface : public UInterface
 	GENERATED_BODY()
 };
 
-class UAnimMontage;
-class USystem;
 
 /**
  * 
@@ -73,7 +74,10 @@ public:
 	UAnimMontage* GetHitReactMontage();
 
 	virtual void Die(const FVector& DeathImpulse) = 0;
+	// we return the actual delegate, not a copy of it!
 	virtual FOnDeathSignature& GetOnDeathDelegate() = 0;
+	// we wouldnt be able to override this function in other classes if the type of delegate was incomplete (forward declaration), this is why we declare the delegate here. 
+	virtual FOnDamageSignature& GetOnDamageSignature() = 0;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;

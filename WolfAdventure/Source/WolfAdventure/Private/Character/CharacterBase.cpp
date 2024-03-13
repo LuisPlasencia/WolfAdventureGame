@@ -57,6 +57,13 @@ UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+float ACharacterBase::TakeDamage(float DamageAmound, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float DamageTaken = Super::TakeDamage(DamageAmound, DamageEvent, EventInstigator, DamageCauser);
+	OnDamageDelegate.Broadcast(DamageTaken);
+	return DamageTaken;
+}
+
 void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -231,6 +238,11 @@ void ACharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
 bool ACharacterBase::IsBeingShocked_Implementation() const
 {
 	return bIsBeingShocked;
+}
+
+FOnDamageSignature& ACharacterBase::GetOnDamageSignature()
+{
+	return OnDamageDelegate;
 }
 
 void ACharacterBase::InitAbilityActorInfo()

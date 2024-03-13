@@ -230,6 +230,42 @@ bool UBaseAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle
 	return false;
 }
 
+bool UBaseAbilitySystemLibrary::IsRadialDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->IsRadialDamage();
+	}
+	return false;
+}
+
+float UBaseAbilitySystemLibrary::GetRadialDamageInnerRadius(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->GetRadialDamageInnerRadius();
+	}
+	return 0.f;
+}
+
+float UBaseAbilitySystemLibrary::GetRadialDamageOuterRadius(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->GetRadialDamageOuterRadius();
+	}
+	return 0.f;
+}
+
+FVector UBaseAbilitySystemLibrary::GetRadialDamageOrigin(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FBaseGameplayEffectContext* BaseEffectContext = static_cast<const FBaseGameplayEffectContext*>(EffectContextHandle.Get()))  // regular c++ compile time static cast
+	{
+		return BaseEffectContext->GetRadialDamageOrigin();
+	}
+	return FVector::ZeroVector;
+}
+
 void UBaseAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit)
 {
 	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -301,6 +337,38 @@ void UBaseAbilitySystemLibrary::SetKnockbackForce(UPARAM(ref)FGameplayEffectCont
 	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		BaseEffectContext->SetKnockbackForce(InForce);
+	}
+}
+
+void UBaseAbilitySystemLibrary::SetIsRadialDamage(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, bool bInIsRadialDamage)
+{
+	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		BaseEffectContext->SetIsRadialDamage(bInIsRadialDamage);
+	}
+}
+
+void UBaseAbilitySystemLibrary::SetRadialDamageInnerRadius(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InInnerRadius)
+{
+	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		BaseEffectContext->SetRadialDamageInnerRadius(InInnerRadius);
+	}
+}
+
+void UBaseAbilitySystemLibrary::SetRadialDamageOuterRadius(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InOuterRadius)
+{
+	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		BaseEffectContext->SetRadialDamageOuterRadius(InOuterRadius);
+	}
+}
+
+void UBaseAbilitySystemLibrary::SetRadialDamageOrigin(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, const FVector& InOrigin)
+{
+	if (FBaseGameplayEffectContext* BaseEffectContext = static_cast<FBaseGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		BaseEffectContext->SetRadialDamageOrigin(InOrigin);
 	}
 }
 
@@ -379,6 +447,11 @@ FGameplayEffectContextHandle UBaseAbilitySystemLibrary::ApplyDamageEffect(const 
 	SetDeathImpulse(EffectContextHandle, DamageEffectParams.DeathImpulse);
 	SetKnockbackForce(EffectContextHandle, DamageEffectParams.KnockbackForce);
 	
+	SetIsRadialDamage(EffectContextHandle, DamageEffectParams.bIsRadialDamage);
+	SetRadialDamageInnerRadius(EffectContextHandle, DamageEffectParams.RadialDamageInnerRadius);
+	SetRadialDamageOuterRadius(EffectContextHandle, DamageEffectParams.RadialDamageOuterRadius);
+	SetRadialDamageOrigin(EffectContextHandle, DamageEffectParams.RadialDamageOrigin);
+
 	// The spec handle is created with the SOURCE ASC and we associate magnitude to tags in this spec handle!
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
 	
