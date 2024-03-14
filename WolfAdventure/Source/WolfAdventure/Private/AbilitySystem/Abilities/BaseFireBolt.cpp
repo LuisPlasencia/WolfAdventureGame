@@ -29,7 +29,7 @@ FString UBaseFireBolt::GetDescription(int32 Level)
 			"<Small>Cooldown: </><Cooldown>%.1f</>\n\n"
 
 			"<Default>Launches a bolt of fire, "
-			"exploding on impact and dealing: </>"
+			"exploding on impact and dealing </>"
 
 			// Damage
 			"<Damage>%d</><Default> fire damage with"
@@ -56,7 +56,7 @@ FString UBaseFireBolt::GetDescription(int32 Level)
 
 			// Number of FireBolts
 			"<Default>Launches %d bolts of fire, "
-			"exploding on impact and dealing: </>"
+			"exploding on impact and dealing </>"
 
 			// Damage
 			"<Damage>%d</><Default> fire damage with"

@@ -13,6 +13,7 @@
 #include "UI/Widget/DamageTextComponent.h"
 #include "Components/DecalComponent.h"
 #include <Character/WolfCharacter.h>
+#include <WolfAdventure/WolfAdventure.h>
 
 AWolfPlayerController::AWolfPlayerController()
 {
@@ -191,7 +192,9 @@ void AWolfPlayerController::CrosshairTrace()
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	FVector2D CrosshairPosition = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 3);
-	GetHitResultAtScreenPosition(CrosshairPosition, ECC_WorldDynamic, false, CrosshairHit);
+
+	const ECollisionChannel TraceChannel = IsValid(MagicCircle) ? ECC_ExcludePlayers : ECC_Visibility;
+	GetHitResultAtScreenPosition(CrosshairPosition, TraceChannel, false, CrosshairHit);
 
 	if (!CrosshairHit.bBlockingHit) return;
 
@@ -204,7 +207,7 @@ void AWolfPlayerController::CrosshairTrace()
 	{
 		ThisActor = nullptr;
 	}
-
+	
 	if (LastActor != ThisActor)
 	{
 		UnHighlightActor(LastActor);

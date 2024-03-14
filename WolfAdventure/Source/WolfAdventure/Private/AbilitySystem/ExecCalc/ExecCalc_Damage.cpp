@@ -185,12 +185,17 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const FGameplayEffectAttributeCaptureDefinition CaptureDef = TagsToCaptureDefs[ResistanceTag];
 
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);  // returns 0 if not set for a given damage type
+		if (DamageTypeValue <= 0.f)
+		{
+			continue;
+		}
 
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDef, EvaluationParameters, Resistance);
 		Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
 
 		DamageTypeValue *= (100.f - Resistance) / 100.f;  // we reduce the damage type value by the resistance to that damage type in percentage
+		
 
 		if (UBaseAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
 		{
