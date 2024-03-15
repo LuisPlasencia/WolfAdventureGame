@@ -66,6 +66,7 @@ void ABaseProjectile::Destroyed()
 
 void ABaseProjectile::OnHit()
 {
+	// we can do this with a local gameplay cue (gameplay cues by default are multicast RPCs, but not local ones) (see BaseFireBall Hit() implementation that inherits from baseprojectile)
 	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 	// the projectile can be destroyed before it can construct a loopingsoundcomponent 
@@ -79,19 +80,7 @@ void ABaseProjectile::OnHit()
 
 void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (DamageEffectParams.SourceAbilitySystemComponent == nullptr) return;
-	if (DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor() == nullptr) return;
-	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
-
-	if (OtherActor == GetOwner()) return;
-	//// on clients, the damageEffectSpecHandle data is not valid, since in spawnProjectile (BaseProjectileSpell class), we make sure to only set the spec handle on the server and it is not a replicated variable
-	//if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
-	//{
-	//	return;
-	//}
-
-	if (SourceAvatarActor == OtherActor) return;
-	if (!UBaseAbilitySystemLibrary::IsNotFriend(SourceAvatarActor, OtherActor)) return;
+	if (IsValidOverlap(OtherActor)) return;
 	if (!bHit) OnHit();
 
 	// there is a chance that Destroy could replicate down to the client before the client has the function sphereoverlap is called (destroyed before sound and niagara) thats why we use the boolean
@@ -122,6 +111,25 @@ void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		Destroy();
 	}
 	else bHit = true;
+}
+
+bool ABaseProjectile::IsValidOverlap(AActor* OtherActor)
+{
+	if (DamageEffectParams.SourceAbilitySystemComponent == nullptr) return false;
+	if (DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor() == nullptr) return false;
+	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
+
+	if (OtherActor == GetOwner()) return false;
+	//// on clients, the damageEffectSpecHandle data is not valid, since in spawnProjectile (BaseProjectileSpell class), we make sure to only set the spec handle on the server and it is not a replicated variable
+	//if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
+	//{
+	//	return;
+	//}
+
+	if (SourceAvatarActor == OtherActor) return false;
+	if (!UBaseAbilitySystemLibrary::IsNotFriend(SourceAvatarActor, OtherActor)) return false;
+
+	return true;
 }
 
 
