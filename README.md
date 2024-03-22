@@ -3,7 +3,9 @@
 Unreal Engine 5.3 videogame project. <br>
 Third Person Online RPG in development featuring the adventures of a set of wolves.  <br>
 Use of Unreal Engine's Gameplay Ability plugin, where abilities and actions are registered with gameplay tags. <br>
-SOLID Principles.
+SOLID Principles. <br>
+
+Playable build (March 2024):  https://drive.google.com/file/d/1mvMffKriLSYjBwpawwZxKaphvouw7hXz/view?usp=sharing
 
 ![image](https://github.com/LuisPlasencia/WolfAdventureGame/assets/60783486/e911cf8e-7cd4-4241-94c1-a3e7f98285fe)
 
