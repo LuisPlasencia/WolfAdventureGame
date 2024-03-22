@@ -19,6 +19,15 @@ UOverlayWidgetController* ABaseHUD::GetOverlayWidgetController(const FWidgetCont
 	return OverlayWidgetController;
 }
 
+UOverlayWidgetController* ABaseHUD::GetOverlayWidgetController()
+{
+	if (OverlayWidgetController != nullptr)
+	{
+		return OverlayWidgetController;
+	} 
+	return nullptr;
+}
+
 UAttributeMenuWidgetController* ABaseHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (AttributeMenuWidgetController == nullptr)

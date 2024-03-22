@@ -142,6 +142,21 @@ void FBaseGameplayTags::InitializeNativeGameplayTags()
 		FString("Input Tag Passive Ability 1")
 	);
 
+	GameplayTags.InputTag_EscAlt = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.EscapeAlt"),
+		FString("Input Tag for key EscAlt")
+	);
+
+	GameplayTags.InputTag_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Start"),
+		FString("Input Tag for key Start")
+	);
+
+	GameplayTags.InputTag_Select = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Select"),
+		FString("Input Tag for key Select")
+	);
+
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Damage"),
 		FString("Damage")

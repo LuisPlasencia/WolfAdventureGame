@@ -80,8 +80,10 @@ void ABaseProjectile::OnHit()
 
 void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IsValidOverlap(OtherActor)) return;
+	if (!IsValidOverlap(OtherActor)) return;
+	
 	if (!bHit) OnHit();
+//	UE_LOG(LogTemp, Warning, TEXT("%d"), IsValidOverlap(OtherActor));
 
 	// there is a chance that Destroy could replicate down to the client before the client has the function sphereoverlap is called (destroyed before sound and niagara) thats why we use the boolean
 	if (HasAuthority())
@@ -115,11 +117,13 @@ void ABaseProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 bool ABaseProjectile::IsValidOverlap(AActor* OtherActor)
 {
+
 	if (DamageEffectParams.SourceAbilitySystemComponent == nullptr) return false;
 	if (DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor() == nullptr) return false;
 	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
 
 	if (OtherActor == GetOwner()) return false;
+	if (OtherActor->GetOwner() == GetOwner()) return false;
 	//// on clients, the damageEffectSpecHandle data is not valid, since in spawnProjectile (BaseProjectileSpell class), we make sure to only set the spec handle on the server and it is not a replicated variable
 	//if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
 	//{

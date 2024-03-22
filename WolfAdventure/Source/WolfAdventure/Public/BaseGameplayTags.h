@@ -43,6 +43,9 @@ public:
 	FGameplayTag InputTag_4;
 	FGameplayTag InputTag_Passive_1;
 	FGameplayTag InputTag_Passive_2;
+	FGameplayTag InputTag_Start;
+	FGameplayTag InputTag_Select;
+	FGameplayTag InputTag_EscAlt;
 
 	FGameplayTag Damage;
 	FGameplayTag Damage_Fire;

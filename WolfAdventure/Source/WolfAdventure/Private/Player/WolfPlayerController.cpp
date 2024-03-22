@@ -13,7 +13,11 @@
 #include "UI/Widget/DamageTextComponent.h"
 #include "Components/DecalComponent.h"
 #include <Character/WolfCharacter.h>
+#include "UI/HUD/BaseHUD.h"
 #include <WolfAdventure/WolfAdventure.h>
+#include <AbilitySystem/BaseAttributeSet.h>
+#include "UI/WidgetController/OverlayWidgetController.h"
+#include <Player/WolfPlayerState.h>
 
 AWolfPlayerController::AWolfPlayerController()
 {
@@ -87,6 +91,10 @@ void AWolfPlayerController::SetupInputComponent()
 
 	BaseInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AWolfPlayerController::Move);
 	BaseInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AWolfPlayerController::Jump);
+
+	BaseInputComponent->BindAction(EscapeAltAction, ETriggerEvent::Started, this, &AWolfPlayerController::EscAltPressed);
+	BaseInputComponent->BindAction(StartAction, ETriggerEvent::Started, this, &AWolfPlayerController::StartPressed);
+	BaseInputComponent->BindAction(SelectAction, ETriggerEvent::Started, this, &AWolfPlayerController::SelectPressed);
 
 }
 
@@ -215,6 +223,46 @@ void AWolfPlayerController::CrosshairTrace()
 	}
 }
 
+
+void AWolfPlayerController::EscAltPressed()
+{
+	// on the client side, we only have the playercontroller for our character, not the other player's so we need to nullcheck this (server has all the player controllers but not the client)
+	if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(GetHUD()))   // hud only valid for the locally controlled player
+	{
+		UOverlayWidgetController* OverlayWidgetController = BaseHUD->GetOverlayWidgetController();
+		if (OverlayWidgetController)
+		{
+			OverlayWidgetController->OnKeyPressedDelegate.Broadcast(FBaseGameplayTags::Get().InputTag_EscAlt);
+		}
+	}
+
+}
+
+void AWolfPlayerController::StartPressed()
+{
+	// on the client side, we only have the playercontroller for our character, not the other player's so we need to nullcheck this (server has all the player controllers but not the client)
+	if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(GetHUD()))   // hud only valid for the locally controlled player
+	{
+		UOverlayWidgetController* OverlayWidgetController = BaseHUD->GetOverlayWidgetController();
+		if (OverlayWidgetController)
+		{
+			OverlayWidgetController->OnKeyPressedDelegate.Broadcast(FBaseGameplayTags::Get().InputTag_Start);
+		}
+	}
+}
+
+void AWolfPlayerController::SelectPressed()
+{
+	// on the client side, we only have the playercontroller for our character, not the other player's so we need to nullcheck this (server has all the player controllers but not the client)
+	if (ABaseHUD* BaseHUD = Cast<ABaseHUD>(GetHUD()))   // hud only valid for the locally controlled player
+	{
+		UOverlayWidgetController* OverlayWidgetController = BaseHUD->GetOverlayWidgetController();
+		if (OverlayWidgetController)
+		{
+			OverlayWidgetController->OnKeyPressedDelegate.Broadcast(FBaseGameplayTags::Get().InputTag_Select);
+		}
+	}
+}
 
 void AWolfPlayerController::Move(const FInputActionValue& Value)
 {

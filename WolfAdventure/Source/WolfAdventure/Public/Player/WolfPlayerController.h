@@ -45,6 +45,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 		TObjectPtr<UInputAction> JumpAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> EscapeAltAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> StartAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> SelectAction;
+
 	virtual void SetupInputComponent() override;
 
 private:
@@ -57,6 +66,9 @@ private:
 
 	void ShiftPressed() { bShiftKeyDown = true; }
 	void ShiftReleased() { bShiftKeyDown = false; };
+	void EscAltPressed(); 
+	void StartPressed(); 
+	void SelectPressed(); 
 	bool bShiftKeyDown = false;
 	void Move(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);

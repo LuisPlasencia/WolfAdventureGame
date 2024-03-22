@@ -31,6 +31,8 @@ struct FUIWidgetRow : public FTableRowBase
 // dynamic delegates can be serialized, theyre the slowest delegates, only use when needed (and we need them here in order to be assignable in blueprint)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);  // dynamic multicast delegate that broadcasts a float (delegate type)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnKeyPressed, FGameplayTag, Key);
+
 
 
 
@@ -70,6 +72,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Level")
 	FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnKeyPressed OnKeyPressedDelegate;
 
 protected: 
 
