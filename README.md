@@ -16,4 +16,5 @@ Playable build (March 2024):  https://drive.google.com/file/d/1mvMffKriLSYjBwpaw
 ![image](https://github.com/LuisPlasencia/WolfAdventureGame/assets/60783486/7d4e3950-22fd-47ee-8c6b-b7d06ed2e555)
 
 
-![image](https://github.com/LuisPlasencia/WolfAdventureGame/assets/60783486/a6adbfe1-5dc8-4427-b578-8fa6c1f5c920)
+![spels](https://github.com/LuisPlasencia/WolfAdventureGame/assets/60783486/9ab556b0-1116-43e8-accf-22011555ad31)
+
