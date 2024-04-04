@@ -47,9 +47,14 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UWorld> DefaultMap;
 
+	UPROPERTY(EditDefaultsOnly)
+	FName DefaultPlayerStartTag;
+
 	// the maps will be set in the editor's panel so we can make them soft object pointers with the template wrapper TSoftObjectPtr (not loaded in memory until they are used) (lazily loaded)
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FString, TSoftObjectPtr<UWorld>> Maps;
+
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
 protected:
 	virtual void BeginPlay() override;

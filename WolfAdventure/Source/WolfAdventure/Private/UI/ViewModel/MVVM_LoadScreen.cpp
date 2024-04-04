@@ -5,6 +5,7 @@
 #include "UI/ViewModel/MVVM_LoadSlot.h"
 #include <Kismet/GameplayStatics.h>
 #include <Game/WolfAdventureGameModeBase.h>
+#include <Game/WolfAdventureGameInstance.h>
 
 void UMVVM_LoadScreen::InitializeLoadSlots()
 {
@@ -37,9 +38,15 @@ void UMVVM_LoadScreen::NewSlotButtonPressed(int32 Slot, const FString EnteredNam
 	LoadSlots[Slot]->SetMapName(BaseGameMode->DefaultMapName);
 	LoadSlots[Slot]->SetPlayerName(EnteredName);
 	LoadSlots[Slot]->SlotStatus = Taken;
+	LoadSlots[Slot]->PlayerStartTag = BaseGameMode->DefaultPlayerStartTag;
 
 	BaseGameMode->SaveSlotData(LoadSlots[Slot], Slot);
 	LoadSlots[Slot]->InitializeSlot();
+
+	UWolfAdventureGameInstance* BaseGameInstance = Cast<UWolfAdventureGameInstance>(BaseGameMode->GetGameInstance());
+	BaseGameInstance->LoadSlotName = LoadSlots[Slot]->GetLoadSlotName();
+	BaseGameInstance->LoadSlotIndex = LoadSlots[Slot]->SlotIndex;
+	BaseGameInstance->PlayerStartTag = BaseGameMode->DefaultPlayerStartTag;
 }
 
 void UMVVM_LoadScreen::NewGameButtonPressed(int32 Slot)
@@ -80,6 +87,8 @@ void UMVVM_LoadScreen::DeleteButtonPressed()
 void UMVVM_LoadScreen::PlayButtonPressed()
 {
 	AWolfAdventureGameModeBase* BaseGameMode = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(this));
+	UWolfAdventureGameInstance* BaseGameInstance = Cast<UWolfAdventureGameInstance>(BaseGameMode->GetGameInstance());
+	BaseGameInstance->PlayerStartTag = SelectedSlot->PlayerStartTag;
 	if (IsValid(SelectedSlot))
 	{
 		BaseGameMode->TravelToMap(SelectedSlot);
@@ -103,6 +112,7 @@ void UMVVM_LoadScreen::LoadData()
 		LoadSlot.Value->SetPlayerName(PlayerName);
 		LoadSlot.Value->InitializeSlot();
 		LoadSlot.Value->SetMapName(SaveObject->MapName);
+		LoadSlot.Value->PlayerStartTag = SaveObject->PlayerStartTag;
 
 	}
 }

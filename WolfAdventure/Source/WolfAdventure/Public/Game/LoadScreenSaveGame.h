@@ -36,6 +36,10 @@ public:
 	UPROPERTY()
 	FString MapName = FString("Default Map Name");
 
+	// fnames cant have spaces in them or they can cause problems. For spaces we use Fstrings
+	UPROPERTY()
+	FName PlayerStartTag;
+
 	// TEnumasbyte because this is how we can safe enums
 	UPROPERTY()
 	TEnumAsByte<ESaveSlotStatus> SaveSlotStatus = Vacant;
