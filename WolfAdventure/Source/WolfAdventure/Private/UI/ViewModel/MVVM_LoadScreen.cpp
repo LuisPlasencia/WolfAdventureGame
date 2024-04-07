@@ -37,6 +37,7 @@ void UMVVM_LoadScreen::NewSlotButtonPressed(int32 Slot, const FString EnteredNam
 
 	LoadSlots[Slot]->SetMapName(BaseGameMode->DefaultMapName);
 	LoadSlots[Slot]->SetPlayerName(EnteredName);
+	LoadSlots[Slot]->SetPlayerLevel(1);
 	LoadSlots[Slot]->SlotStatus = Taken;
 	LoadSlots[Slot]->PlayerStartTag = BaseGameMode->DefaultPlayerStartTag;
 
@@ -89,6 +90,9 @@ void UMVVM_LoadScreen::PlayButtonPressed()
 	AWolfAdventureGameModeBase* BaseGameMode = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(this));
 	UWolfAdventureGameInstance* BaseGameInstance = Cast<UWolfAdventureGameInstance>(BaseGameMode->GetGameInstance());
 	BaseGameInstance->PlayerStartTag = SelectedSlot->PlayerStartTag;
+	BaseGameInstance->LoadSlotName = SelectedSlot->GetLoadSlotName();
+	BaseGameInstance->LoadSlotIndex = SelectedSlot->SlotIndex;
+
 	if (IsValid(SelectedSlot))
 	{
 		BaseGameMode->TravelToMap(SelectedSlot);
@@ -113,6 +117,7 @@ void UMVVM_LoadScreen::LoadData()
 		LoadSlot.Value->InitializeSlot();
 		LoadSlot.Value->SetMapName(SaveObject->MapName);
 		LoadSlot.Value->PlayerStartTag = SaveObject->PlayerStartTag;
+		LoadSlot.Value->SetPlayerLevel(SaveObject->PlayerLevel);
 
 	}
 }

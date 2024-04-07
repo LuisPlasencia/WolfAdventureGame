@@ -17,6 +17,13 @@
 #include "BaseGameplayTags.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include <AbilitySystem/Data/LevelUpInfo.h>
+#include <Game/WolfAdventureGameModeBase.h>
+#include <Kismet/GameplayStatics.h>
+#include "AbilitySystem/Data/AbilityInfo.h"
+#include "Game/LoadScreenSaveGame.h"
+#include "AbilitySystem/BaseAttributeSet.h"
+#include <Game/WolfAdventureGameInstance.h>
+#include <AbilitySystem/BaseAbilitySystemLibrary.h>
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -58,13 +65,54 @@ AWolfCharacter::AWolfCharacter()
 	LevelUpNiagaraComponent->bAutoActivate = false;
 }
 
+
 void AWolfCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
 	// Init ability actor info for the server
 	InitAbilityActorInfo();
-	AddCharacterAbilities();
+	LoadProgress();
+
+	if (AWolfAdventureGameModeBase* BaseGameMode = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		BaseGameMode->LoadWorldState(GetWorld());
+	}
+}
+
+// saving to disk is a single player solution, in multiplayer we would be retrieving the data from a database
+void AWolfCharacter::LoadProgress()
+{
+	AWolfAdventureGameModeBase* BaseGameMode = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if (BaseGameMode)
+	{
+		ULoadScreenSaveGame* SaveData = BaseGameMode->RetrieveInGameSaveData();
+		if (SaveData == nullptr) return;
+
+		if (SaveData->bFirstTimeLoadIn)
+		{
+			InitializeDefaultAttributes();
+			AddCharacterAbilities();
+		}
+		else
+		{
+			//Load in Abilities from disk 
+			if (UBaseAbilitySystemComponent* BaseASC = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent))
+			{
+				BaseASC->AddCharacterAbilitiesFromSaveData(SaveData);
+			}
+
+			if (AWolfPlayerState* WolfPlayerState = Cast<AWolfPlayerState>(GetPlayerState()))
+			{
+				WolfPlayerState->SetLevel(SaveData->PlayerLevel);
+				WolfPlayerState->SetXP(SaveData->XP);
+				WolfPlayerState->SetAttributePoints(SaveData->AttributePoints);
+				WolfPlayerState->SetSpellPoints(SaveData->SpellPoints);
+			}
+
+			UBaseAbilitySystemLibrary::InitializeDefaultAttributesFromSaveData(this, AbilitySystemComponent, SaveData);
+		}
+	}
 }
 
 void AWolfCharacter::OnRep_PlayerState()
@@ -184,6 +232,58 @@ void AWolfCharacter::HideMagicCircle_Implementation()
 	}
 }
 
+void AWolfCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
+{
+	AWolfAdventureGameModeBase* BaseGameMode = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if (BaseGameMode)
+	{
+		ULoadScreenSaveGame* SaveData = BaseGameMode->RetrieveInGameSaveData();
+		if (SaveData == nullptr) return;
+
+		SaveData->PlayerStartTag = CheckpointTag;
+
+		if (AWolfPlayerState* WolfPlayerState = Cast<AWolfPlayerState>(GetPlayerState()))
+		{
+			SaveData->PlayerLevel = WolfPlayerState->GetPlayerLevel();
+			SaveData->XP = WolfPlayerState->GetXP();
+			SaveData->AttributePoints = WolfPlayerState->GetAttributePoints();
+			SaveData->SpellPoints = WolfPlayerState->GetSpellPoints();
+		}
+		SaveData->Strength = UBaseAttributeSet::GetStrengthAttribute().GetNumericValue(GetAttributeSet());
+		SaveData->Intelligence = UBaseAttributeSet::GetIntelligenceAttribute().GetNumericValue(GetAttributeSet());
+		SaveData->Resilience = UBaseAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
+		SaveData->Vigor = UBaseAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
+		SaveData->bFirstTimeLoadIn = false;
+
+		if (!HasAuthority()) return;
+		
+		UBaseAbilitySystemComponent* BaseASC = Cast<UBaseAbilitySystemComponent>(AbilitySystemComponent);
+		FForEachAbility SaveAbilityDelegate;
+		SaveData->SavedAbilities.Empty();
+		SaveAbilityDelegate.BindLambda([this, BaseASC, SaveData](const FGameplayAbilitySpec& AbilitySpec)
+		{
+			const FGameplayTag AbilityTag = BaseASC->GetAbilityTagFromSpec(AbilitySpec);
+			// get abilityinfo will only return ability info on the server because it gets it from the game mode
+			UAbilityInfo* AbilityInfo = UBaseAbilitySystemLibrary::GetAbilityInfo(this);
+			FBaseAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+
+			FSavedAbility SavedAbility;
+			SavedAbility.GameplayAbility = Info.Ability;
+			SavedAbility.AbilityLevel = AbilitySpec.Level;
+			SavedAbility.AbilitySlot = BaseASC->GetSlotFromAbilityTag(AbilityTag);
+			SavedAbility.AbilityStatus = BaseASC->GetStatusFromAbilityTag(AbilityTag);
+			SavedAbility.AbilityTag = AbilityTag;
+			SavedAbility.AbilityType = Info.AbilityType;
+
+			// AddUnique must be able to compare two savedAbilities to know if they are equal or not (we need to override equal "==" operator)
+			SaveData->SavedAbilities.AddUnique(SavedAbility);
+		});
+		BaseASC->ForEachAbility(SaveAbilityDelegate);
+
+		BaseGameMode->SaveInGameProgressData(SaveData);
+	}
+}
+
 int32 AWolfCharacter::GetPlayerLevel_Implementation()
 {
 	const AWolfPlayerState * WolfPlayerState = GetPlayerState<AWolfPlayerState>();
@@ -215,7 +315,7 @@ void AWolfCharacter::InitAbilityActorInfo()
 	}
 
 	// only needs to be done in the server since the attributes will be replicated to the clients (but can be done in both client and server so the client doesnt have to wait for the server to replicate them back down)
-	InitializeDefaultAttributes();
+	//	InitializeDefaultAttributes();
 }
 
 

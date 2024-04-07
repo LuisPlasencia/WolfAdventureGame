@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "PassiveNiagaraComponent.generated.h"
 
+class UBaseAbilitySystemComponent;
+
 /**
  * 
  */
@@ -26,5 +28,6 @@ protected:
 
 	// callback
 	void OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate);
+	void ActivateIfEquipped(UBaseAbilitySystemComponent* BaseASC);
 
 };
