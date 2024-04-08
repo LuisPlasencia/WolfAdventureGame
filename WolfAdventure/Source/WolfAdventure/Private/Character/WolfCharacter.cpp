@@ -24,6 +24,7 @@
 #include "AbilitySystem/BaseAttributeSet.h"
 #include <Game/WolfAdventureGameInstance.h>
 #include <AbilitySystem/BaseAbilitySystemLibrary.h>
+#include <Interaction/HighlightInterface.h>
 
 // Sets default values
 AWolfCharacter::AWolfCharacter()
@@ -512,30 +513,22 @@ void AWolfCharacter::DodgeEnd()
 
 void AWolfCharacter::OnBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IEnemyInterface* ThisActor = Cast<IEnemyInterface>(OtherActor))
+	if (IsValid(OtherActor) && OtherActor->Implements<UHighlightInterface>())
 	{
-		if (ThisActor != nullptr)
-		{
-			ThisActor->HighLightActor();
-
-		}
-	//	UE_LOG(LogTemp, Warning, TEXT("BeginOverlapPig"));
+		IHighlightInterface::Execute_HighlightActor(OtherActor);
 	}
 
-
+	//	UE_LOG(LogTemp, Warning, TEXT("BeginOverlapPig"));
 }
 
 void AWolfCharacter::OnEndOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
-	if (IEnemyInterface* ThisActor = Cast<IEnemyInterface>(OtherActor))
+	if (IsValid(OtherActor) && OtherActor->Implements<UHighlightInterface>())
 	{
-		if (OtherActor != nullptr)
-		{
-			ThisActor->UnHighlightActor();
-		}
-	//	UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
+		IHighlightInterface::Execute_UnHighlightActor(OtherActor);
 	}
+	//	UE_LOG(LogTemp, Warning, TEXT("EndOverlapPig"));
+	
 }
 
 

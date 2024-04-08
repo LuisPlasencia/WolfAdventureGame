@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerStart.h"
 #include "Interaction/SaveInterface.h"
+#include "Interaction/HighlightInterface.h"
+#include <WolfAdventure/WolfAdventure.h>
 #include "Checkpoint.generated.h"
 
 class USphereComponent;
@@ -13,7 +15,7 @@ class USphereComponent;
  * 
  */
 UCLASS()
-class WOLFADVENTURE_API ACheckpoint : public APlayerStart, public ISaveInterface
+class WOLFADVENTURE_API ACheckpoint : public APlayerStart, public ISaveInterface, public IHighlightInterface
 {
 	GENERATED_BODY()
 
@@ -26,8 +28,12 @@ public:
 	/* end Save Interface */
 
 	// SaveGame specifier makes the variable serializable in order for us to be able to save its value to disk (SaveWorldState method in the gamemodde)
-	UPROPERTY(BlueprintReadOnly, SaveGame)
+	UPROPERTY(BlueprintReadWrite, SaveGame)
 	bool bReached = false;
+
+	// false if we want to implement a different overlap mechanic in blueprint for different set of checkpoint items (for example a beacon that lights up but doesnt save the game but we want it to be a checkpoint actor because it does something similar)
+	UPROPERTY(EditAnywhere)
+	bool bBindOverlapCallback = true;
 
 protected:
 	UFUNCTION()
@@ -35,14 +41,21 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	/* Highlight Interface */
+	virtual void HighlightActor_Implementation() override;
+	virtual void UnHighlightActor_Implementation() override;
+	/* end Highlight Interface */
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 CustomDepthStencilOverride = CUSTOM_DEPTH_TAN;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void CheckpointReached(UMaterialInstanceDynamic* DynamicMaterialInstance);
 
+	UFUNCTION(BlueprintCallable)
 	void HandleGlowEffects();
 
-private:
-
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> CheckpointMesh;
 
 	UPROPERTY(VisibleAnywhere)

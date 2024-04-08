@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/CharacterBase.h"
 #include "Interaction/EnemyInterface.h"
+#include "Interaction/HighlightInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "EnemyCharacter.generated.h"
 
@@ -16,7 +17,7 @@ class ABaseAIController;
  * 
  */
 UCLASS()
-class WOLFADVENTURE_API AEnemyCharacter : public ACharacterBase, public IEnemyInterface
+class WOLFADVENTURE_API AEnemyCharacter : public ACharacterBase, public IEnemyInterface, public IHighlightInterface
 {
 	GENERATED_BODY()
 	
@@ -27,10 +28,10 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 
-	/** Enemy Interface */
-	virtual void HighLightActor() override;
-	virtual void UnHighlightActor() override;
-	/** end Enemy Interface */
+	/** HighLight Interface */
+	virtual void HighlightActor_Implementation() override;
+	virtual void UnHighlightActor_Implementation() override;
+	/** end HighLight Interface */
 
 	/** Combat Interface */
 	virtual int32 GetPlayerLevel_Implementation() override;

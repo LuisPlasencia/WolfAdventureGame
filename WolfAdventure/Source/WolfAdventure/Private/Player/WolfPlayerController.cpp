@@ -18,6 +18,7 @@
 #include <AbilitySystem/BaseAttributeSet.h>
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include <Player/WolfPlayerState.h>
+#include <Interaction/HighlightInterface.h>
 
 AWolfPlayerController::AWolfPlayerController()
 {
@@ -106,6 +107,17 @@ void AWolfPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 	{
 		return;
 	}
+	if (InputTag.MatchesTagExact(FBaseGameplayTags::Get().InputTag_LMB))
+	{
+		if (IsValid(ThisActor))
+		{
+			TargetingStatus = ThisActor->Implements<UEnemyInterface>() ? ETargetingStatus::TargetingEnemy : ETargetingStatus::TargetingNonEnemy;
+		}
+		else
+		{
+			TargetingStatus = ETargetingStatus::NotTargeting;
+		}
+	}
 
 	if (GetASC())
 	{
@@ -122,6 +134,8 @@ void AWolfPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 	if (GetASC() == nullptr) return;
 	GetASC()->AbilityInputTagReleased(InputTag);
+
+	TargetingStatus = ETargetingStatus::NotTargeting;
 
 	// GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Blue, *InputTag.ToString());
 }
@@ -165,23 +179,17 @@ UBaseAbilitySystemComponent* AWolfPlayerController::GetASC()
 
 void AWolfPlayerController::HighlightActor(AActor* InActor)
 {
-	if (IEnemyInterface * ThisEnemy = Cast<IEnemyInterface>(InActor))
+	if (IsValid(InActor) && InActor->Implements<UHighlightInterface>())
 	{
-		if (ThisEnemy != nullptr)
-		{
-			ThisEnemy->HighLightActor();
-		}
+		IHighlightInterface::Execute_HighlightActor(InActor);
 	}
 }
 
 void AWolfPlayerController::UnHighlightActor(AActor* InActor)
 {
-	if (IEnemyInterface* ThisEnemy = Cast<IEnemyInterface>(InActor))
+	if (IsValid(InActor) && InActor->Implements<UHighlightInterface>())
 	{
-		if (ThisEnemy != nullptr)
-		{
-			ThisEnemy->UnHighlightActor();
-		}
+		IHighlightInterface::Execute_UnHighlightActor(InActor);
 	}
 }
 
@@ -207,7 +215,7 @@ void AWolfPlayerController::CrosshairTrace()
 	if (!CrosshairHit.bBlockingHit) return;
 
 	LastActor = ThisActor;
-	if (IsValid(CrosshairHit.GetActor()) && Cast<IEnemyInterface>(CrosshairHit.GetActor()))
+	if (IsValid(CrosshairHit.GetActor()) && CrosshairHit.GetActor()->Implements<UHighlightInterface>())
 	{
 		ThisActor = CrosshairHit.GetActor();
 	}

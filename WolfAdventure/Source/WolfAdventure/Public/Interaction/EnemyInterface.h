@@ -22,8 +22,6 @@ class WOLFADVENTURE_API IEnemyInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void HighLightActor() = 0;
-	virtual void UnHighlightActor() = 0;
 
 	// we want to implement functionality and make the call in blueprint, in interfaces we need to make a BP native event so we can override its implementation in our enemy class
 	// BP native events are not marked virtual, they auto generate an implementation version thats virtual that we can override

@@ -103,6 +103,9 @@ public:
 	UPROPERTY()
 	FString MapName = FString("Default Map Name");
 
+	UPROPERTY()
+	FString MapAssetName = FString("Default Map Asset Name");
+
 	// fnames cant have spaces in them or they can cause problems. For spaces we use Fstrings
 	UPROPERTY()
 	FName PlayerStartTag;

@@ -16,6 +16,14 @@ class UDamageTextComponent;
 class AMagicCircle;
 struct FInputActionValue;
 
+// scoped inum (need to use ETargetingStatus::attribute to use)
+enum class ETargetingStatus : uint8
+{
+	TargetingEnemy,
+	TargetingNonEnemy,
+	NotTargeting
+};
+
 /**
  * 
  */
@@ -107,4 +115,5 @@ private:
 	void UpdateMagicCircleLocation();
 
 	FHitResult CrosshairHit;
+	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 };
