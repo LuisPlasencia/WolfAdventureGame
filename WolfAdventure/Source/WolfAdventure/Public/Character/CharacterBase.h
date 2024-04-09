@@ -84,6 +84,8 @@ public:
 	UFUNCTION()
 	virtual void OnRep_Burned();
 
+	void SetCharacterClass(ECharacterClass InClass) { CharacterClass = InClass; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -106,6 +108,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName TailSocketName;
 
+	// SET IN THE MULTICAST HANDLE DEATH (REPLICATED in that function)
+	UPROPERTY(BlueprintReadOnly)
 	bool bDead = false;
 
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);

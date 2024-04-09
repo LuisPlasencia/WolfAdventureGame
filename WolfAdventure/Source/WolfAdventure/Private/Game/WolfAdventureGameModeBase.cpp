@@ -9,6 +9,7 @@
 #include <Game/WolfAdventureGameInstance.h>
 #include <EngineUtils.h>
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
+#include "GameFramework/Character.h"
 #include <Interaction/SaveInterface.h>
 
 void AWolfAdventureGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
@@ -24,6 +25,7 @@ void AWolfAdventureGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 Sl
 	LoadScreenSaveGame->SaveSlotStatus = Taken;
 	LoadScreenSaveGame->MapName = LoadSlot->GetMapName();
 	LoadScreenSaveGame->PlayerStartTag = LoadSlot->PlayerStartTag;
+	LoadScreenSaveGame->MapAssetName = LoadSlot->MapAssetName; 
 
 	UGameplayStatics::SaveGameToSlot(LoadScreenSaveGame, LoadSlot->GetLoadSlotName(), SlotIndex);
 }
@@ -226,6 +228,14 @@ AActor* AWolfAdventureGameModeBase::ChoosePlayerStart_Implementation(AController
 	}
 	
 	return nullptr;
+}
+
+void AWolfAdventureGameModeBase::PlayerDied(ACharacter* DeadCharacter)
+{
+	ULoadScreenSaveGame* SaveGame = RetrieveInGameSaveData();
+	if (!IsValid(SaveGame)) return;
+
+	UGameplayStatics::OpenLevel(DeadCharacter, FName(SaveGame->MapAssetName));
 }
 
 void AWolfAdventureGameModeBase::BeginPlay()

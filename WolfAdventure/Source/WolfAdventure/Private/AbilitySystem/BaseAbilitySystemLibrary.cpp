@@ -223,6 +223,14 @@ UAbilityInfo* UBaseAbilitySystemLibrary::GetAbilityInfo(const UObject* WorldCont
 	return BaseGameMode->AbilityInfo;
 }
 
+ULootTiers* UBaseAbilitySystemLibrary::GetLootTiers(const UObject* WorldContextObject)
+{
+	const AWolfAdventureGameModeBase* BaseGameMode = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (BaseGameMode == nullptr) return nullptr;
+
+	return BaseGameMode->LootTiers;
+}
+
 bool UBaseAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	// EffectContextHandle.Get returns a const, if we are static castings we need to store the result in a const, if we want to store it in a non const we would have to const_cast to cast away the constness

@@ -292,6 +292,23 @@ int32 AWolfCharacter::GetPlayerLevel_Implementation()
 	return WolfPlayerState->GetPlayerLevel();
 }
 
+void AWolfCharacter::Die(const FVector& DeathImpulse)
+{
+	Super::Die(DeathImpulse);
+
+	FTimerDelegate DeathTimerDelegate;
+	DeathTimerDelegate.BindLambda([this]
+	{
+			AWolfAdventureGameModeBase* BaseGM = Cast<AWolfAdventureGameModeBase>(UGameplayStatics::GetGameMode(this));
+			if (BaseGM)
+			{
+				BaseGM->PlayerDied(this);
+			}
+	});
+	GetWorldTimerManager().SetTimer(DeathTimer, DeathTimerDelegate, DeathTime, false);
+	ViewCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+}
+
 void AWolfCharacter::InitAbilityActorInfo()
 {
 	AWolfPlayerState* WolfPlayerState = GetPlayerState<AWolfPlayerState>();

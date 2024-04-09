@@ -35,7 +35,7 @@ public:
 
 	/** Combat Interface */
 	virtual int32 GetPlayerLevel_Implementation() override;
-	virtual void Die(const FVector& DeathImpulse) override;
+	virtual void Die(const FVector& DeathImpulse) override; 
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
 	/** end Combat interface */
@@ -58,6 +58,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	TObjectPtr<AActor> CombatTarget;
 
+	void SetLevel(int32 InLevel) { Level = InLevel;  }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -79,4 +81,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<ABaseAIController> BaseAIController;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnLoot();
 };

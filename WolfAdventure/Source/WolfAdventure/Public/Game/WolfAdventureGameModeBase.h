@@ -9,6 +9,7 @@
 
 class UCharacterClassInfo;
 class UAbilityInfo;
+class ULootTiers;
 class UMVVM_LoadSlot;
 class USaveGame;
 class ULoadScreenSaveGame;
@@ -28,6 +29,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability Info")
 	TObjectPtr<UAbilityInfo> AbilityInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Loot Tiers")
+	TObjectPtr<ULootTiers> LootTiers;
 
 	// the game mode is a good class to save, since game modes have authority over the rules of the game 
 	void SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex);
@@ -60,6 +64,8 @@ public:
 	FString GetMapNameFromMapAssetName(const FString& MapAssetName) const;
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
+	void PlayerDied(ACharacter* DeadCharacter);
 
 protected:
 	virtual void BeginPlay() override;

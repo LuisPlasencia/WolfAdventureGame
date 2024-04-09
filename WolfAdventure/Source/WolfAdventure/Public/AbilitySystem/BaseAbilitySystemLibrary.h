@@ -11,6 +11,7 @@
 class UOverlayWidgetController;
 class UAttributeMenuWidgetController;
 class UAbilitySystemComponent;
+class ULootTiers;
 class USpellMenuWidgetController;
 class UAbilityInfo;
 // if we were to return a FWidgetControllerParams copy and not a reference or a pointer, we would need to include its header but in this case we can forward declare it 
@@ -65,6 +66,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|CharacterClassDefaults")
 	static UAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "BaseAbilitySystemLibrary|CharacterClassDefaults", meta = (DefaultToSelf = "WorldContextObject"))
+	static ULootTiers* GetLootTiers(const UObject* WorldContextObject);
 
 
 	/*

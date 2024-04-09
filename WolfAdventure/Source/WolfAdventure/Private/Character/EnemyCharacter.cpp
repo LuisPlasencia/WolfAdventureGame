@@ -173,7 +173,7 @@ void AEnemyCharacter::Die(const FVector& DeathImpulse)
 	{
 		BaseAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	}
-
+	SpawnLoot();
 	Super::Die(DeathImpulse);
 }
 
