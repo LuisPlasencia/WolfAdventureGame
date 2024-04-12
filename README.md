@@ -6,7 +6,7 @@ Use of Unreal Engine's Gameplay Ability plugin, where abilities and actions are 
 SOLID Principles. <br>
 Programmed for multiplayer. <br>
 
-Playable build (March 2024):  https://drive.google.com/file/d/1_X_8k_E3dqMXcZLyVyQ6YyK2xpLbjsFF/view?usp=sharing
+Playable build (March 2024):  https://drive.google.com/drive/folders/11YkkOIQn3nE9MXxepDsDXEoNl7TVslOm?usp=sharing
 
 ![image](https://github.com/LuisPlasencia/WolfAdventureGame/assets/60783486/e911cf8e-7cd4-4241-94c1-a3e7f98285fe)
 
