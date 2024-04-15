@@ -5,6 +5,11 @@ Third Person RPG in development featuring the adventures of a set of wolves.  <b
 Use of Unreal Engine's Gameplay Ability plugin, where abilities and actions are registered with gameplay tags. <br>
 SOLID Principles. <br>
 Programmed for multiplayer. <br>
+- Saving system, dynamic input maping of abilities
+- Arcana, fire, electric and physical damage.
+- Complex Attribute System
+- Leveling system with data tables
+- Responsive UI 
 
 Playable builds:  https://drive.google.com/drive/folders/11YkkOIQn3nE9MXxepDsDXEoNl7TVslOm?usp=sharing
 
