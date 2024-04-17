@@ -9,7 +9,8 @@ Programmed for multiplayer. <br>
 - Arcana, fire, electric and physical damage.
 - Complex Attribute System
 - Leveling system with data tables
-- Responsive UI 
+- Responsive UI
+- WASD or joystick to move / Escape or alt to enter or exit UI mode / Right click to dodge / Controller half supported
 
 Playable builds:  https://drive.google.com/drive/folders/11YkkOIQn3nE9MXxepDsDXEoNl7TVslOm?usp=sharing
 
